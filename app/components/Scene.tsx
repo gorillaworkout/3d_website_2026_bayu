@@ -1,22 +1,21 @@
 "use client"
 
-import { useRef, useEffect, Suspense } from 'react'
+import { useRef, useEffect, Suspense, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edges, MeshTransmissionMaterial, Svg } from '@react-three/drei'
+import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edges, MeshTransmissionMaterial, Html } from '@react-three/drei'
 import * as THREE from 'three'
 
-// 1. KOORDINAT VERTIKAL (Elegan & Terstruktur)
+// KOORDINAT VERTIKAL (Elegan & Terstruktur)
 const WAYPOINTS = {
-  home: { position: [0, 2, 12], target: [0, 0, 0] },          // Origin (Y: 0)
-  about: { position: [0, -28, 12], target: [0, -30, 0] },     // Fluidity (Y: -30)
-  portfolio: { position: [0, -58, 12], target: [0, -60, 0] }, // Structure (Y: -60)
-  services: { position: [0, 28, 12], target: [0, 30, 0] },    // Elevation (Y: 30)
-  contact: { position: [0, 58, 12], target: [0, 60, 0] }      // Beyond (Y: 60)
+  home: { position: [0, 2, 12], target: [0, 0, 0] },
+  about: { position: [0, -28, 12], target: [0, -30, 0] },
+  portfolio: { position: [0, -58, 12], target: [0, -60, 0] },
+  services: { position: [0, 28, 12], target: [0, 30, 0] },
+  contact: { position: [0, 58, 12], target: [0, 60, 0] }
 }
 
 function CameraRig({ activeMenu }: { activeMenu: string }) {
   const controlsRef = useRef<any>(null)
-
   useEffect(() => {
     if (controlsRef.current) {
       const { position, target } = WAYPOINTS[activeMenu as keyof typeof WAYPOINTS] || WAYPOINTS.home
@@ -27,15 +26,12 @@ function CameraRig({ activeMenu }: { activeMenu: string }) {
       )
     }
   }, [activeMenu])
-
   return (
     <CameraControls 
-      ref={controlsRef} 
-      smoothTime={0.8} 
+      ref={controlsRef} smoothTime={0.8} 
       mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 0 }}
       touches={{ one: 0, two: 0, three: 0 }}
-      minDistance={0}
-      maxDistance={Infinity}
+      minDistance={0} maxDistance={Infinity}
     />
   )
 }
@@ -52,15 +48,49 @@ function InteractiveWorld({ children }: { children: React.ReactNode }) {
   return <group ref={worldRef}>{children}</group>
 }
 
-// 2. THEME CONTROLLER (Warna Elegan: Navy, Dark Slate, Midnight)
+// Lottie Gorilla Component (Menggunakan HTML 3D)
+function GorillaLottie() {
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    // Kita panggil player Lottie khusus untuk web components
+    import('@lottiefiles/lottie-player').then(() => setMounted(true))
+  }, [])
+
+  // Tempatkan tepat di atas tanah (Y: -2)
+  return (
+    <group position={[-2.5, -2, 0]}>
+      {mounted && (
+        <Html 
+          transform       // Jadikan objek 3D yang bisa diputar, bukan div datar
+          occlude         // Bisa tertutup objek 3D lain di depannya
+          position={[0, 1.5, 0]} 
+          scale={0.5}     // Sesuaikan ukuran Lottie-nya
+          style={{ width: '400px', height: '400px' }}
+        >
+          {/* Lottie Player element */}
+          <lottie-player
+            src="/gorilla.lottie"
+            background="transparent"
+            speed="1"
+            style={{ width: '100%', height: '100%' }}
+            loop
+            autoplay
+          ></lottie-player>
+        </Html>
+      )}
+    </group>
+  )
+}
+
 function ThemeController() {
   const { scene, camera } = useThree()
   
-  const colorSpace = new THREE.Color("#020617") // Deepest Black
-  const colorSky = new THREE.Color("#0f172a")   // Slate 900
-  const colorSurface = new THREE.Color("#082f49") // Cyan 900 (Gelap elegan)
-  const colorOcean = new THREE.Color("#172554") // Sky 950
-  const colorAbyss = new THREE.Color("#000000") // Pitch Black
+  const colorSpace = new THREE.Color("#020617") 
+  const colorSky = new THREE.Color("#0f172a")   
+  const colorSurface = new THREE.Color("#082f49") 
+  const colorOcean = new THREE.Color("#172554") 
+  const colorAbyss = new THREE.Color("#000000") 
   
   useFrame(() => {
     let targetColor = colorSurface
@@ -71,12 +101,8 @@ function ThemeController() {
     else if (y < -15 && y >= -45) targetColor = colorOcean
     else if (y < -45) targetColor = colorAbyss
 
-    if (scene.background instanceof THREE.Color) {
-      scene.background.lerp(targetColor, 0.05)
-    }
-    if (scene.fog instanceof THREE.Fog) {
-      scene.fog.color.lerp(targetColor, 0.05)
-    }
+    if (scene.background instanceof THREE.Color) scene.background.lerp(targetColor, 0.05)
+    if (scene.fog instanceof THREE.Fog) scene.fog.color.lerp(targetColor, 0.05)
   })
   return null
 }
@@ -96,10 +122,8 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
           <CameraRig activeMenu={activeMenu} />
           <ThemeController />
 
-          {/* Partikel Universal Elegan */}
           <Sparkles count={1500} scale={[40, 150, 40]} position={[0, 0, -5]} size={1.5} speed={0.2} opacity={0.3} color="#e2e8f0" />
 
-          {/* Bintang Elegan di Space */}
           <group position={[0, 60, 0]}>
             <Stars radius={50} depth={50} count={2000} factor={3} saturation={0} fade speed={0.5} />
           </group>
@@ -108,31 +132,23 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
             
             {/* --- ZONA 1: ORIGIN / HOME (Y: 0) --- */}
             <group position={[0, 0, 0]}>
-              {/* Lantai Kaca Reflektif Minimalis */}
-              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, 0]}>
-                <planeGeometry args={[100, 100]} />
-                <MeshTransmissionMaterial transmission={0.9} roughness={0.1} color="#0f172a" />
+              {/* Lantai Rumput Alien / Sci-fi (Bukan rumput hijau biasa agar masuk tema) */}
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
+                <planeGeometry args={[100, 100, 64, 64]} />
+                {/* Efek daratan tidak rata (displacement) */}
+                <MeshDistortMaterial color="#0f172a" roughness={0.9} distort={0.2} speed={0.5} />
               </mesh>
               
-              {/* Logo Gorilla SVG (Diubah jadi 3D) */}
-              <group position={[-3, 2, 0]}>
-                <Float speed={2} floatIntensity={1.5} rotationIntensity={0.5}>
-                  {/* Svg component memuat vektor dan mengekstrusi-nya (membuatnya tebal) secara otomatis */}
-                  <Svg 
-                    src="/gorilla.svg" 
-                    scale={0.005} // SVG asli terlalu besar
-                    position={[0, -1, 0]} // Posisikan ke tengah
-                    rotation={[Math.PI, 0, 0]} // SVG bawaan biasanya terbalik
-                    fillMaterial={{
-                      color: "#38bdf8", 
-                      roughness: 0.1, 
-                      metalness: 0.8,
-                    }}
-                  />
-                </Float>
-              </group>
+              {/* Garis-garis kontur topografi di tanah */}
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.9, 0]}>
+                <planeGeometry args={[100, 100, 32, 32]} />
+                <meshBasicMaterial color="#38bdf8" wireframe opacity={0.1} transparent />
+              </mesh>
+
+              {/* LOTTIE GORILLA BERDIRI DI TANAH */}
+              <GorillaLottie />
               
-              <Text position={[2, 0, 0]} fontSize={1} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2} font="/orbitron.woff">
+              <Text position={[1.5, 0, 0]} fontSize={0.9} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2} font="/orbitron.woff">
                 ORIGIN
               </Text>
             </group>
@@ -143,7 +159,6 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
                 <Float speed={3} floatIntensity={2} rotationIntensity={1}>
                   <mesh>
                     <sphereGeometry args={[1.2, 64, 64]} />
-                    {/* Metal cair elegan */}
                     <MeshDistortMaterial color="#94a3b8" metalness={1} roughness={0.1} distort={0.4} speed={1.5} />
                   </mesh>
                 </Float>
@@ -158,7 +173,6 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
               <group position={[-2, 0, 0]}>
                 <Float speed={1} floatIntensity={1} rotationIntensity={1}>
                   <mesh>
-                    {/* Struktur data kompleks */}
                     <torusKnotGeometry args={[1, 0.3, 128, 16]} />
                     <meshStandardMaterial color="#020617" roughness={0.2} metalness={0.8} />
                     <Edges scale={1} threshold={15} color="#38bdf8" />
@@ -174,7 +188,6 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
             <group position={[0, 30, 0]}>
               <group position={[2, 0, 0]}>
                 <Float speed={2} floatIntensity={1.5} rotationIntensity={2}>
-                  {/* Cincin konsentris (Skill layers) */}
                   <mesh rotation={[Math.PI/3, 0, 0]}>
                     <torusGeometry args={[1.5, 0.05, 16, 100]} />
                     <meshStandardMaterial color="#818cf8" emissive="#818cf8" emissiveIntensity={0.5} />
@@ -198,7 +211,6 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
             <group position={[0, 60, 0]}>
               <group position={[-2, 0, 0]}>
                 <Float speed={1} floatIntensity={1} rotationIntensity={0.5}>
-                  {/* Gerhana / Black Hole kecil */}
                   <mesh>
                     <sphereGeometry args={[1.2, 64, 64]} />
                     <meshStandardMaterial color="#000000" roughness={0.5} metalness={0.5} />
