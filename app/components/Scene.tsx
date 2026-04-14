@@ -74,7 +74,7 @@ function CyberGrid() {
         fadeDistance={40} fadeStrength={2} 
       />
       {/* Lantai kaca gelap memantulkan cahaya grid */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
         <planeGeometry args={[150, 150]} />
         <meshStandardMaterial color="#020617" roughness={0.1} metalness={0.9} transparent opacity={0.8} />
       </mesh>
@@ -90,7 +90,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
           <color attach="background" args={['#03030b']} />
           <fog attach="fog" args={['#03030b', 5, 45]} />
 
-          <Environment files="/studio.exr" background={false} />
+          <Environment preset="night" background={false} />
           <ambientLight intensity={0.2} />
           <directionalLight position={[10, 10, 5]} intensity={2} color="#ec4899" />
           <directionalLight position={[-10, 10, -5]} intensity={2} color="#06b6d4" />
