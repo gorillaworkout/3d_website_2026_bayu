@@ -3,9 +3,7 @@
 import { useRef, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Float, MeshDistortMaterial, Environment, CameraControls, Text, Grid, Sparkles, Edges } from '@react-three/drei'
-import { EffectComposer, Bloom, Noise, Vignette, ChromaticAberration } from '@react-three/postprocessing'
 import * as THREE from 'three'
-import { BlendFunction } from 'postprocessing'
 
 const WAYPOINTS = {
   home: { position: [0, 2, 8], target: [0, 0, 0] },
@@ -180,15 +178,6 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
           </group>
 
         </InteractiveWorld>
-
-        {/* EFEK POSTPROCESSING CYBERPUNK MODERN */}
-        <EffectComposer>
-          <Bloom luminanceThreshold={0.5} luminanceSmoothing={0.9} intensity={2} mipmapBlur />
-          <Noise opacity={0.03} />
-          <Vignette eskil={false} offset={0.1} darkness={1.1} />
-          {/* Glitch kromatik halus pas geser kamera */}
-          <ChromaticAberration blendFunction={BlendFunction.NORMAL} offset={new THREE.Vector2(0.002, 0.002)} />
-        </EffectComposer>
       </Canvas>
     </div>
   )
