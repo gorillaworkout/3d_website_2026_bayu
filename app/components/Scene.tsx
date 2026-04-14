@@ -4,6 +4,13 @@ import { useRef, useEffect, Suspense, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edges, MeshTransmissionMaterial, Html } from '@react-three/drei'
 import * as THREE from 'three'
+// Import Player secara dinamis supaya tidak render di Server (mencegah error "document is not defined")
+import dynamic from 'next/dynamic'
+
+const LottiePlayer = dynamic(
+  () => import('@lottiefiles/react-lottie-player').then(mod => mod.Player),
+  { ssr: false }
+)
 
 // KOORDINAT VERTIKAL (Elegan & Terstruktur)
 const WAYPOINTS = {
@@ -51,13 +58,8 @@ function InteractiveWorld({ children }: { children: React.ReactNode }) {
 // Lottie Gorilla Component (Menggunakan HTML 3D)
 function GorillaLottie() {
   const [mounted, setMounted] = useState(false)
-  
-  useEffect(() => {
-    // Kita panggil player Lottie khusus untuk web components
-    import('@lottiefiles/lottie-player').then(() => setMounted(true))
-  }, [])
+  useEffect(() => setMounted(true), [])
 
-  // Tempatkan tepat di atas tanah (Y: -2)
   return (
     <group position={[-2.5, -2, 0]}>
       {mounted && (
@@ -68,15 +70,12 @@ function GorillaLottie() {
           scale={0.5}     // Sesuaikan ukuran Lottie-nya
           style={{ width: '400px', height: '400px' }}
         >
-          {/* Lottie Player element */}
-          <lottie-player
-            src="/gorilla.lottie"
-            background="transparent"
-            speed="1"
-            style={{ width: '100%', height: '100%' }}
-            loop
+          <LottiePlayer
             autoplay
-          ></lottie-player>
+            loop
+            src="/gorilla.lottie"
+            style={{ width: '100%', height: '100%' }}
+          />
         </Html>
       )}
     </group>
