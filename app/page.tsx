@@ -15,7 +15,7 @@ export default function Home() {
       {/* Navigasi HTML Overlay */}
       <nav className="fixed top-0 left-0 w-full p-8 z-10 flex justify-between items-center pointer-events-auto">
         <div className="text-2xl font-black tracking-tighter text-cyan-400 drop-shadow-md">3D CYBERPUNK</div>
-        <ul className="flex gap-8 text-sm uppercase tracking-widest font-medium">
+        <ul className="flex gap-6 text-sm uppercase tracking-widest font-medium">
           <li>
             <button 
               onClick={() => setActiveMenu('home')}
@@ -40,6 +40,24 @@ export default function Home() {
               Portfolio
             </button>
           </li>
+          {/* Menu Baru: Atas Kanan */}
+          <li>
+            <button 
+              onClick={() => setActiveMenu('services')}
+              className={`hover:text-amber-400 transition-colors cursor-pointer ${activeMenu === 'services' ? 'text-amber-400 border-b border-amber-400' : ''}`}
+            >
+              Services
+            </button>
+          </li>
+          {/* Menu Baru: Atas Kiri */}
+          <li>
+            <button 
+              onClick={() => setActiveMenu('contact')}
+              className={`hover:text-emerald-400 transition-colors cursor-pointer ${activeMenu === 'contact' ? 'text-emerald-400 border-b border-emerald-400' : ''}`}
+            >
+              Contact
+            </button>
+          </li>
         </ul>
       </nav>
 
@@ -61,6 +79,18 @@ export default function Home() {
           <div className="animate-in fade-in duration-500">
             <h1 className="text-6xl font-bold mb-4 text-pink-400">Our Work.</h1>
             <p className="text-slate-300">WebGL experiences powered by React Three Fiber.</p>
+          </div>
+        )}
+        {activeMenu === 'services' && (
+          <div className="animate-in fade-in duration-500">
+            <h1 className="text-6xl font-bold mb-4 text-amber-400">What We Do.</h1>
+            <p className="text-slate-300">Interactive 3D, WebGL Animation, and Next.js Architecture.</p>
+          </div>
+        )}
+        {activeMenu === 'contact' && (
+          <div className="animate-in fade-in duration-500">
+            <h1 className="text-6xl font-bold mb-4 text-emerald-400">Let's Connect.</h1>
+            <p className="text-slate-300">Reach us through the hyperspace network.</p>
           </div>
         )}
       </div>

@@ -8,8 +8,10 @@ import * as THREE from 'three'
 
 const WAYPOINTS = {
   home: { position: [0, 2, 8], target: [0, 0, 0] },
-  about: { position: [0, -18, 8], target: [0, -20, 0] },
-  portfolio: { position: [0, -38, 8], target: [0, -40, 0] }
+  about: { position: [0, -18, 8], target: [0, -20, 0] },     // Bawah
+  portfolio: { position: [0, -38, 8], target: [0, -40, 0] }, // Bawah lagi
+  services: { position: [35, 15, 10], target: [35, 15, 0] },  // Kanan Atas
+  contact: { position: [-35, 25, 10], target: [-35, 25, 0] }  // Kiri Atas
 }
 
 function CameraRig({ activeMenu }: { activeMenu: string }) {
@@ -29,20 +31,17 @@ function CameraRig({ activeMenu }: { activeMenu: string }) {
   return <CameraControls ref={controlsRef} smoothTime={0.8} />
 }
 
-// --- KOMPONEN KOTA CYBERPUNK (PROCEDURAL) ---
 function CyberCity() {
-  // Generate posisi gedung secara acak di belakang dan sekeliling kamera
   const buildings = useMemo(() => {
-    return Array.from({ length: 80 }).map(() => ({
-      x: (Math.random() - 0.5) * 80, // Sebar di sumbu X
-      y: 10 - Math.random() * 80,    // Sebar dari atas ke lantai paling bawah (Y)
-      z: -10 - Math.random() * 40,   // Taruh di belakang target (Sumbu Z minus)
-      w: 2 + Math.random() * 5,      // Lebar gedung
-      h: 10 + Math.random() * 40,    // Tinggi gedung
-      d: 2 + Math.random() * 5,      // Kedalaman gedung
-      // Warna neon acak: Cyan, Pink, atau Ungu
+    return Array.from({ length: 150 }).map(() => ({
+      x: (Math.random() - 0.5) * 120, // Sebar lebih luas ke Kiri & Kanan (X)
+      y: 30 - Math.random() * 100,    // Sebar lebih tinggi ke Atas & Bawah (Y)
+      z: -10 - Math.random() * 50,    // Sebar ke belakang
+      w: 2 + Math.random() * 5,
+      h: 10 + Math.random() * 40,
+      d: 2 + Math.random() * 5,
       color: Math.random() > 0.6 ? "#06b6d4" : Math.random() > 0.3 ? "#ec4899" : "#8b5cf6",
-      isWireframe: Math.random() > 0.8 // 20% gedung berbentuk garis hologram murni
+      isWireframe: Math.random() > 0.8
     }))
   }, [])
 
@@ -52,10 +51,8 @@ function CyberCity() {
         <mesh key={i} position={[b.x, b.y, b.z]}>
           <boxGeometry args={[b.w, b.h, b.d]} />
           {b.isWireframe ? (
-            // Gedung Hologram Wireframe
             <meshBasicMaterial color={b.color} wireframe />
           ) : (
-            // Gedung Gelap dengan Garis Tepi Neon (Tron Style)
             <>
               <meshStandardMaterial color="#020617" roughness={0.2} metalness={0.8} />
               <Edges scale={1} threshold={15} color={b.color} />
@@ -72,7 +69,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
     <div className="fixed inset-0 z-0">
       <Canvas>
         <color attach="background" args={['#050511']} />
-        <fog attach="fog" args={['#050511', 10, 40]} />
+        <fog attach="fog" args={['#050511', 10, 50]} />
 
         <Environment files="/studio.exr" background={false} />
         
@@ -80,21 +77,19 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
         <directionalLight position={[10, 10, 5]} intensity={1} color="#ec4899" />
         
         <CameraRig activeMenu={activeMenu} />
-
-        {/* PANGGIL KOTA CYBERPUNK DI SINI */}
         <CyberCity />
 
-        {/* Efek Debu Kosmik */}
-        <Sparkles count={2000} scale={[40, 100, 40]} position={[0, -20, -10]} size={4} speed={0.4} opacity={0.3} color="#06b6d4" />
+        {/* Efek Debu Kosmik Diperluas */}
+        <Sparkles count={3000} scale={[100, 150, 50]} position={[0, -10, -10]} size={4} speed={0.4} opacity={0.3} color="#06b6d4" />
 
         <Grid 
-          position={[0, -3, 0]} args={[100, 100]} 
+          position={[0, -3, 0]} args={[150, 150]} 
           cellSize={1} cellThickness={1} cellColor="#06b6d4" 
           sectionSize={5} sectionThickness={1.5} sectionColor="#ec4899" 
-          fadeDistance={40} fadeStrength={1} 
+          fadeDistance={50} fadeStrength={1} 
         />
 
-        {/* --- LANTAI 1: HOME (Y: 0) --- */}
+        {/* --- LANTAI 1: HOME (Tengah) --- */}
         <group position={[0, 0, 0]}>
           <Float speed={2} floatIntensity={2}>
             <mesh>
@@ -104,7 +99,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
           </Float>
         </group>
 
-        {/* --- LANTAI 2: ABOUT (Y: -20) --- */}
+        {/* --- LANTAI 2: ABOUT (Bawah) --- */}
         <group position={[0, -20, 0]}>
           <Float speed={2} floatIntensity={2}>
             <mesh>
@@ -117,7 +112,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
           </Text>
         </group>
 
-        {/* --- LANTAI 3: PORTFOLIO (Y: -40) --- */}
+        {/* --- LANTAI 3: PORTFOLIO (Paling Bawah) --- */}
         <group position={[0, -40, 0]}>
           <Float speed={3} floatIntensity={3}>
             <mesh>
@@ -127,6 +122,32 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
           </Float>
           <Text position={[-3, 0, 0]} fontSize={0.8} color="#ec4899" anchorX="right" anchorY="middle">
             OUR PROJECTS
+          </Text>
+        </group>
+
+        {/* --- BARU: SERVICES (Kanan Atas) --- */}
+        <group position={[35, 15, 0]}>
+          <Float speed={2} floatIntensity={2}>
+            <mesh>
+              <dodecahedronGeometry args={[1.5, 0]} />
+              <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={1.5} wireframe />
+            </mesh>
+          </Float>
+          <Text position={[0, -2.5, 0]} fontSize={0.8} color="#fbbf24" anchorX="center" anchorY="middle">
+            SERVICES
+          </Text>
+        </group>
+
+        {/* --- BARU: CONTACT (Kiri Atas) --- */}
+        <group position={[-35, 25, 0]}>
+          <Float speed={4} floatIntensity={4}>
+            <mesh>
+              <torusGeometry args={[1.2, 0.4, 16, 100]} />
+              <MeshDistortMaterial color="#10b981" emissive="#10b981" emissiveIntensity={1.5} distort={0.3} speed={3} />
+            </mesh>
+          </Float>
+          <Text position={[0, -2.5, 0]} fontSize={0.8} color="#10b981" anchorX="center" anchorY="middle">
+            CONTACT US
           </Text>
         </group>
 
