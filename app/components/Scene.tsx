@@ -28,7 +28,17 @@ function CameraRig({ activeMenu }: { activeMenu: string }) {
     }
   }, [activeMenu])
 
-  return <CameraControls ref={controlsRef} smoothTime={0.8} />
+  return (
+    <CameraControls 
+      ref={controlsRef} 
+      smoothTime={0.8} 
+      // Matikan semua interaksi user manual
+      mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 0 }}
+      touches={{ one: 0, laid: 0, two: 0, three: 0 }}
+      minDistance={0} // Biarkan zoom dari sistem (kamera terbang) tetap jalan
+      maxDistance={Infinity}
+    />
+  )
 }
 
 function CyberCity() {
