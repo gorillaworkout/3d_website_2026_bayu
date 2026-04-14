@@ -125,7 +125,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
                   </mesh>
                 </Float>
               </group>
-              <Text position={[2, 0, 0]} font="/orbitron.woff" fontSize={1.2} color="#818cf8" anchorX="left" anchorY="middle" whiteSpace="nowrap">
+              <Text position={[2, 0, 0]} fontSize={1.2} color="#818cf8" anchorX="left" anchorY="middle" whiteSpace="nowrap">
                 01
               </Text>
             </group>
@@ -141,7 +141,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
                   </mesh>
                 </Float>
               </group>
-              <Text position={[-2, 0, 0]} font="/orbitron.woff" fontSize={1.2} color="#f472b6" anchorX="right" anchorY="middle" whiteSpace="nowrap">
+              <Text position={[-2, 0, 0]} fontSize={1.2} color="#f472b6" anchorX="right" anchorY="middle" whiteSpace="nowrap">
                 02
               </Text>
             </group>
@@ -157,7 +157,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
                   </mesh>
                 </Float>
               </group>
-              <Text position={[2, 0, 0]} font="/orbitron.woff" fontSize={1.2} color="#fbbf24" anchorX="left" anchorY="middle" whiteSpace="nowrap">
+              <Text position={[2, 0, 0]} fontSize={1.2} color="#fbbf24" anchorX="left" anchorY="middle" whiteSpace="nowrap">
                 03
               </Text>
             </group>
@@ -173,7 +173,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
                   </mesh>
                 </Float>
               </group>
-              <Text position={[-2, 0, 0]} font="/orbitron.woff" fontSize={1.2} color="#10b981" anchorX="right" anchorY="middle" whiteSpace="nowrap">
+              <Text position={[-2, 0, 0]} fontSize={1.2} color="#10b981" anchorX="right" anchorY="middle" whiteSpace="nowrap">
                 04
               </Text>
             </group>
