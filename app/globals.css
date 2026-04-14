@@ -1,5 +1,9 @@
 @import "tailwindcss";
-@import "tailwindcss-animate";
+
+@theme {
+  --animate-in: in;
+  --animate-fade-in: fadeIn;
+}
 
 :root {
   --background: #0f172a;
