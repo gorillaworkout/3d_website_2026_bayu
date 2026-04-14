@@ -1,16 +1,17 @@
 "use client"
 
 import { useRef, useEffect, Suspense } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Float, MeshDistortMaterial, Environment, CameraControls, Text, Grid, Sparkles, Edges } from '@react-three/drei'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars } from '@react-three/drei'
 import * as THREE from 'three'
 
+// 1. KOORDINAT VERTIKAL (Darat, Laut, Angkasa)
 const WAYPOINTS = {
-  home: { position: [0, 2, 8], target: [0, 0, 0] },
-  about: { position: [0, -18, 8], target: [0, -20, 0] },
-  portfolio: { position: [0, -38, 8], target: [0, -40, 0] },
-  services: { position: [35, 15, 15], target: [35, 15, 0] },  
-  contact: { position: [-35, 25, 15], target: [-35, 25, 0] }  
+  home: { position: [0, 2, 12], target: [0, 0, 0] },          // Darat (Y: 0)
+  about: { position: [0, -28, 12], target: [0, -30, 0] },     // Bawah Laut (Y: -30)
+  portfolio: { position: [0, -58, 12], target: [0, -60, 0] }, // Palung Laut (Y: -60)
+  services: { position: [0, 28, 12], target: [0, 30, 0] },    // Atas Awan (Y: 30)
+  contact: { position: [0, 58, 12], target: [0, 60, 0] }      // Luar Angkasa (Y: 60)
 }
 
 function CameraRig({ activeMenu }: { activeMenu: string }) {
@@ -41,7 +42,6 @@ function CameraRig({ activeMenu }: { activeMenu: string }) {
 
 function InteractiveWorld({ children }: { children: React.ReactNode }) {
   const worldRef = useRef<THREE.Group>(null!)
-
   useFrame((state) => {
     if (!worldRef.current) return;
     const targetX = state.pointer.x * 1; 
@@ -49,37 +49,35 @@ function InteractiveWorld({ children }: { children: React.ReactNode }) {
     worldRef.current.position.x = THREE.MathUtils.lerp(worldRef.current.position.x, targetX, 0.05);
     worldRef.current.position.y = THREE.MathUtils.lerp(worldRef.current.position.y, targetY, 0.05);
   })
-
   return <group ref={worldRef}>{children}</group>
 }
 
-// Komponen Grid Cyberpunk Futuristik
-function CyberGrid() {
-  const gridRef = useRef<any>(null)
+// 2. THEME CONTROLLER (Ubah Warna Background & Kabut sesuai Ketinggian)
+function ThemeController() {
+  const { scene, camera } = useThree()
   
-  useFrame((state) => {
-    // Membuat grid seolah-olah bergerak mundur (efek kecepatan)
-    if (gridRef.current) {
-      gridRef.current.position.z = (state.clock.elapsedTime * 2) % 1
+  // Warna-warni Tema
+  const colorSpace = new THREE.Color("#020617") // Hitam Angkasa
+  const colorSky = new THREE.Color("#38bdf8")   // Biru Cerah Darat/Awan
+  const colorSea = new THREE.Color("#0891b2")   // Biru Laut
+  const colorAbyss = new THREE.Color("#020617") // Hitam Palung Laut
+  
+  useFrame(() => {
+    let targetColor = colorSky // Default
+    
+    const y = camera.position.y
+    if (y > 45) targetColor = colorSpace
+    else if (y < -15 && y >= -45) targetColor = colorSea
+    else if (y < -45) targetColor = colorAbyss
+
+    if (scene.background instanceof THREE.Color) {
+      scene.background.lerp(targetColor, 0.05)
+    }
+    if (scene.fog instanceof THREE.Fog) {
+      scene.fog.color.lerp(targetColor, 0.05)
     }
   })
-
-  return (
-    <group position={[0, -3, 0]}>
-      <Grid 
-        ref={gridRef}
-        args={[150, 150]} 
-        cellSize={1} cellThickness={1.5} cellColor="#0ea5e9" // Cyan lebih terang
-        sectionSize={5} sectionThickness={2.5} sectionColor="#db2777" // Pink tebal
-        fadeDistance={40} fadeStrength={2} 
-      />
-      {/* Lantai kaca gelap memantulkan cahaya grid */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
-        <planeGeometry args={[150, 150]} />
-        <meshStandardMaterial color="#020617" roughness={0.1} metalness={0.9} transparent opacity={0.8} />
-      </mesh>
-    </group>
-  )
+  return null
 }
 
 export default function Scene({ activeMenu }: { activeMenu: string }) {
@@ -87,94 +85,107 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
     <div className="fixed inset-0 z-0">
       <Canvas>
         <Suspense fallback={null}>
-          <color attach="background" args={['#03030b']} />
-          <fog attach="fog" args={['#03030b', 5, 45]} />
-
-          <Environment preset="night" background={false} />
-          <ambientLight intensity={0.2} />
-          <directionalLight position={[10, 10, 5]} intensity={2} color="#ec4899" />
-          <directionalLight position={[-10, 10, -5]} intensity={2} color="#06b6d4" />
+          <color attach="background" args={['#38bdf8']} />
+          <fog attach="fog" args={['#38bdf8', 10, 40]} />
+          
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" />
           
           <CameraRig activeMenu={activeMenu} />
+          <ThemeController />
+
+          {/* Bintang hanya di area Luar Angkasa (Y: 60) */}
+          <group position={[0, 60, 0]}>
+            <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
+          </group>
 
           <InteractiveWorld>
-            <CyberGrid />
             
-            <Sparkles count={4000} scale={[100, 150, 50]} position={[0, -10, -10]} size={2} speed={0.8} opacity={0.6} color="#22d3ee" />
-
-            {/* HOME (Z=0, Object di tengah, No Text) */}
+            {/* --- ZONA 1: DARATAN (Y: 0) --- */}
             <group position={[0, 0, 0]}>
-              <Float speed={2} floatIntensity={2}>
-                <mesh>
-                  <torusKnotGeometry args={[1.2, 0.4, 200, 64]} />
-                  <meshStandardMaterial color="#020617" metalness={0.9} roughness={0.1} />
-                  <Edges scale={1} threshold={15} color="#06b6d4" />
-                  <Edges scale={1.05} threshold={15} color="#ec4899" />
+              {/* Tanah */}
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
+                <planeGeometry args={[100, 100]} />
+                <meshStandardMaterial color="#22c55e" roughness={0.8} /> {/* Hijau Rumput */}
+              </mesh>
+              <Float speed={2} floatIntensity={1}>
+                <mesh position={[-2, 0, 0]}>
+                  <boxGeometry args={[1.5, 1.5, 1.5]} />
+                  <meshStandardMaterial color="#fcd34d" />
                 </mesh>
               </Float>
-            </group>
-
-            {/* ABOUT */}
-            <group position={[0, -20, 0]}>
-              <group position={[-2, 0, 0]}>
-                <Float speed={2} floatIntensity={2}>
-                  <mesh>
-                    <octahedronGeometry args={[1.5, 0]} />
-                    <meshStandardMaterial color="#020617" metalness={1} roughness={0} />
-                    <Edges color="#818cf8" scale={1.1} />
-                  </mesh>
-                </Float>
-              </group>
-              <Text position={[2, 0, 0]} fontSize={1.2} color="#818cf8" anchorX="left" anchorY="middle" whiteSpace="nowrap">
-                01
+              <Text position={[2, 0, 0]} fontSize={1} color="#ffffff" anchorX="left" anchorY="middle">
+                SURFACE
               </Text>
             </group>
 
-            {/* PORTFOLIO */}
-            <group position={[0, -40, 0]}>
+            {/* --- ZONA 2: BAWAH LAUT (Y: -30) --- */}
+            <group position={[0, -30, 0]}>
+              {/* Gelembung Air */}
+              <Sparkles count={500} scale={[20, 20, 20]} size={6} speed={0.4} opacity={0.6} color="#ffffff" />
               <group position={[2, 0, 0]}>
                 <Float speed={3} floatIntensity={3}>
                   <mesh>
-                    <icosahedronGeometry args={[1.5, 0]} />
-                    <meshStandardMaterial color="#020617" metalness={1} roughness={0} />
-                    <Edges color="#f472b6" scale={1.1} />
+                    <torusGeometry args={[1, 0.4, 32, 64]} />
+                    <MeshDistortMaterial color="#22d3ee" distort={0.5} speed={2} /> {/* Jellyfish feel */}
                   </mesh>
                 </Float>
               </group>
-              <Text position={[-2, 0, 0]} fontSize={1.2} color="#f472b6" anchorX="right" anchorY="middle" whiteSpace="nowrap">
-                02
+              <Text position={[-2, 0, 0]} fontSize={1} color="#ffffff" anchorX="right" anchorY="middle">
+                OCEAN
               </Text>
             </group>
 
-            {/* SERVICES */}
-            <group position={[35, 15, 0]}>
+            {/* --- ZONA 3: PALUNG LAUT (Y: -60) --- */}
+            <group position={[0, -60, 0]}>
+              {/* Plankton menyala di kegelapan */}
+              <Sparkles count={800} scale={[30, 30, 30]} size={3} speed={0.2} opacity={0.8} color="#06b6d4" />
               <group position={[-2, 0, 0]}>
+                <Float speed={1} floatIntensity={1}>
+                  <mesh>
+                    <octahedronGeometry args={[1.5, 0]} />
+                    <meshStandardMaterial color="#020617" wireframe />
+                  </mesh>
+                </Float>
+              </group>
+              <Text position={[2, 0, 0]} fontSize={1} color="#06b6d4" anchorX="left" anchorY="middle">
+                THE ABYSS
+              </Text>
+            </group>
+
+            {/* --- ZONA 4: ATAS AWAN (Y: 30) --- */}
+            <group position={[0, 30, 0]}>
+              {/* Awan buatan (kumpulan bola putih) */}
+              <group position={[0, -3, -5]}>
+                <mesh position={[-3, 0, 0]}><sphereGeometry args={[2, 32, 32]}/><meshStandardMaterial color="white" /></mesh>
+                <mesh position={[0, 1, 0]}><sphereGeometry args={[2.5, 32, 32]}/><meshStandardMaterial color="white" /></mesh>
+                <mesh position={[3, 0, 0]}><sphereGeometry args={[2, 32, 32]}/><meshStandardMaterial color="white" /></mesh>
+              </group>
+              <group position={[2, 0, 0]}>
                 <Float speed={2} floatIntensity={2}>
                   <mesh>
-                    <dodecahedronGeometry args={[1.5, 0]} />
-                    <meshStandardMaterial color="#020617" metalness={1} roughness={0} />
-                    <Edges color="#fbbf24" scale={1.1} />
+                    <cylinderGeometry args={[1, 1, 2, 32]} />
+                    <meshStandardMaterial color="#fbcfe8" />
                   </mesh>
                 </Float>
               </group>
-              <Text position={[2, 0, 0]} fontSize={1.2} color="#fbbf24" anchorX="left" anchorY="middle" whiteSpace="nowrap">
-                03
+              <Text position={[-2, 0, 0]} fontSize={1} color="#ffffff" anchorX="right" anchorY="middle">
+                SKY
               </Text>
             </group>
 
-            {/* CONTACT */}
-            <group position={[-35, 25, 0]}>
-              <group position={[2, 0, 0]}>
-                <Float speed={4} floatIntensity={4}>
+            {/* --- ZONA 5: LUAR ANGKASA (Y: 60) --- */}
+            <group position={[0, 60, 0]}>
+              <group position={[-2, 0, 0]}>
+                <Float speed={4} floatIntensity={2}>
                   <mesh>
-                    <torusGeometry args={[1.2, 0.4, 16, 100]} />
-                    <meshStandardMaterial color="#020617" metalness={1} roughness={0} />
-                    <Edges color="#10b981" scale={1.1} />
+                    <icosahedronGeometry args={[1.5, 0]} />
+                    <meshStandardMaterial color="#94a3b8" roughness={0.8} metalness={0.2} /> {/* Asteroid */}
                   </mesh>
                 </Float>
               </group>
-              <Text position={[-2, 0, 0]} fontSize={1.2} color="#10b981" anchorX="right" anchorY="middle" whiteSpace="nowrap">
-                04
+              <Text position={[2, 0, 0]} fontSize={1} color="#ffffff" anchorX="left" anchorY="middle">
+                SPACE
               </Text>
             </group>
 
