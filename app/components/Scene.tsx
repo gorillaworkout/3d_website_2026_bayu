@@ -32,7 +32,7 @@ function CameraRig({ activeMenu }: { activeMenu: string }) {
       ref={controlsRef} 
       smoothTime={0.8} 
       mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 0 }}
-      touches={{ one: 0, laid: 0, two: 0, three: 0 }}
+      touches={{ one: 0, two: 0, three: 0 }}
       minDistance={0}
       maxDistance={Infinity}
     />
