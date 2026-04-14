@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edges, MeshTransmissionMaterial } from '@react-three/drei'
+import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edges, MeshTransmissionMaterial, Svg } from '@react-three/drei'
 import * as THREE from 'three'
 
 // 1. KOORDINAT VERTIKAL (Elegan & Terstruktur)
@@ -113,21 +113,26 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
                 <planeGeometry args={[100, 100]} />
                 <MeshTransmissionMaterial transmission={0.9} roughness={0.1} color="#0f172a" />
               </mesh>
-              {/* Objek Kaca Berputar */}
-              <group position={[-2, 0, 0]}>
-                <Float speed={2} floatIntensity={1} rotationIntensity={2}>
-                  <mesh>
-                    <octahedronGeometry args={[1.5, 0]} />
-                    <MeshTransmissionMaterial transmission={1} thickness={1.5} roughness={0} chromaticAberration={0.03} color="#38bdf8" />
-                    <Edges scale={1} threshold={15} color="#ffffff" opacity={0.5} transparent />
-                  </mesh>
-                  <mesh>
-                    <octahedronGeometry args={[0.8, 0]} />
-                    <meshStandardMaterial color="#ffffff" wireframe />
-                  </mesh>
+              
+              {/* Logo Gorilla SVG (Diubah jadi 3D) */}
+              <group position={[-3, 2, 0]}>
+                <Float speed={2} floatIntensity={1.5} rotationIntensity={0.5}>
+                  {/* Svg component memuat vektor dan mengekstrusi-nya (membuatnya tebal) secara otomatis */}
+                  <Svg 
+                    src="/gorilla.svg" 
+                    scale={0.005} // SVG asli terlalu besar
+                    position={[0, -1, 0]} // Posisikan ke tengah
+                    rotation={[Math.PI, 0, 0]} // SVG bawaan biasanya terbalik
+                    fillMaterial={{
+                      color: "#38bdf8", 
+                      roughness: 0.1, 
+                      metalness: 0.8,
+                    }}
+                  />
                 </Float>
               </group>
-              <Text position={[1.5, 0, 0]} fontSize={0.9} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2}>
+              
+              <Text position={[2, 0, 0]} fontSize={1} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2} font="/orbitron.woff">
                 ORIGIN
               </Text>
             </group>
