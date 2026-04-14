@@ -7,169 +7,181 @@ export default function Home() {
   const [activeMenu, setActiveMenu] = useState('home')
 
   return (
-    <main className="relative w-full h-screen overflow-hidden bg-slate-900 text-white font-sans selection:bg-cyan-500 selection:text-white">
+    <main className="relative w-full h-screen overflow-hidden bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-white">
       
-      {/* Background 3D Multi-Alam */}
       <Scene activeMenu={activeMenu} />
 
       {/* Navigasi (Selalu di atas) */}
-      <nav className="fixed top-0 left-0 w-full p-6 z-30 flex justify-between items-center pointer-events-auto bg-gradient-to-b from-black/60 to-transparent backdrop-blur-sm">
-        <div className="text-xl md:text-2xl font-black tracking-widest text-white flex flex-col">
-          BAYU <span className="text-cyan-400 text-sm">DARMAWAN</span>
+      <nav className="fixed top-0 left-0 w-full p-6 md:p-10 z-30 flex justify-between items-center pointer-events-auto mix-blend-difference text-white">
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold tracking-[0.2em] text-slate-400">PORTFOLIO</span>
+          <span className="text-xl md:text-2xl font-black tracking-widest uppercase mt-1">BAYU DARMAWAN</span>
         </div>
-        <ul className="flex gap-4 md:gap-8 text-[10px] md:text-sm uppercase tracking-widest font-bold">
+        <ul className="flex gap-4 md:gap-10 text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium">
           <li>
-            <button onClick={() => setActiveMenu('home')} className={`hover:text-green-400 transition-all ${activeMenu === 'home' ? 'text-green-400 border-b-2 border-green-400' : 'text-slate-300'}`}>Start</button>
+            <button onClick={() => setActiveMenu('contact')} className={`hover:text-white transition-all duration-300 relative group ${activeMenu === 'contact' ? 'text-white' : 'text-slate-400'}`}>
+              Beyond
+              <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === 'contact' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+            </button>
           </li>
           <li>
-            <button onClick={() => setActiveMenu('about')} className={`hover:text-cyan-400 transition-all ${activeMenu === 'about' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-300'}`}>About</button>
+            <button onClick={() => setActiveMenu('services')} className={`hover:text-white transition-all duration-300 relative group ${activeMenu === 'services' ? 'text-white' : 'text-slate-400'}`}>
+              Elevation
+              <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === 'services' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+            </button>
           </li>
           <li>
-            <button onClick={() => setActiveMenu('portfolio')} className={`hover:text-blue-500 transition-all ${activeMenu === 'portfolio' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-slate-300'}`}>Work</button>
+            <button onClick={() => setActiveMenu('home')} className={`hover:text-white transition-all duration-300 relative group ${activeMenu === 'home' ? 'text-white' : 'text-slate-400'}`}>
+              Origin
+              <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === 'home' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+            </button>
           </li>
           <li>
-            <button onClick={() => setActiveMenu('services')} className={`hover:text-pink-400 transition-all ${activeMenu === 'services' ? 'text-pink-400 border-b-2 border-pink-400' : 'text-slate-300'}`}>Skills</button>
+            <button onClick={() => setActiveMenu('about')} className={`hover:text-white transition-all duration-300 relative group ${activeMenu === 'about' ? 'text-white' : 'text-slate-400'}`}>
+              Fluidity
+              <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === 'about' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+            </button>
           </li>
           <li>
-            <button onClick={() => setActiveMenu('contact')} className={`hover:text-amber-400 transition-all ${activeMenu === 'contact' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-slate-300'}`}>Contact</button>
+            <button onClick={() => setActiveMenu('portfolio')} className={`hover:text-white transition-all duration-300 relative group ${activeMenu === 'portfolio' ? 'text-white' : 'text-slate-400'}`}>
+              Structure
+              <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === 'portfolio' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+            </button>
           </li>
         </ul>
       </nav>
 
-      {/* Hero Text untuk Home/Surface */}
-      <div className={`fixed bottom-12 left-6 md:left-12 z-10 max-w-3xl pointer-events-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${activeMenu === 'home' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-        <h2 className="text-green-400 font-bold tracking-[0.3em] mb-2 text-sm md:text-base">SYSTEM ONLINE</h2>
-        <h1 className="text-5xl md:text-8xl font-black mb-4 text-white leading-tight">
-          CREATIVE <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">DEVELOPER.</span>
+      {/* Hero Text untuk Home/Origin */}
+      <div className={`fixed bottom-12 left-6 md:left-12 z-10 max-w-3xl pointer-events-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)] transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${activeMenu === 'home' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <h2 className="text-cyan-400 font-bold tracking-[0.3em] mb-4 text-xs md:text-sm">CREATIVE ENGINEER</h2>
+        <h1 className="text-5xl md:text-[5.5rem] font-medium mb-6 text-white leading-[1.1] tracking-tight">
+          Crafting digital
+          <br/>
+          <span className="italic font-light text-slate-400">experiences</span> that last.
         </h1>
-        <p className="text-slate-200 font-sans text-base md:text-xl max-w-xl bg-black/40 p-4 rounded-xl backdrop-blur-md border border-white/10 shadow-2xl">
-          Bridging the gap between hardcore software engineering and immersive 3D WebGL experiences. Navigate the dimensions above to explore my universe.
+        <p className="text-slate-300 text-sm md:text-base max-w-xl font-light leading-relaxed border-l border-cyan-400/50 pl-4">
+          I build high-performance software and immersive WebGL interfaces. Seamlessly connecting robust backend architectures with stunning frontend aesthetics.
         </p>
       </div>
 
-      {/* Laci Samping */}
+      {/* Laci Samping (Minimalis Elegan) */}
       <div 
-        className={`fixed top-0 right-0 h-full w-full md:w-[500px] bg-slate-950/80 backdrop-blur-2xl border-l border-white/10 pt-28 p-8 md:p-12 flex flex-col z-20 pointer-events-auto transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] overflow-y-auto ${activeMenu !== 'home' ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-full w-full md:w-[450px] bg-slate-950/80 backdrop-blur-xl border-l border-white/5 pt-28 p-8 md:p-12 flex flex-col z-20 pointer-events-auto transition-transform duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] overflow-y-auto ${activeMenu !== 'home' ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <button 
           onClick={() => setActiveMenu('home')}
-          className="absolute top-28 right-8 text-xs tracking-widest text-slate-400 hover:text-white transition-colors uppercase border border-slate-600/50 hover:border-slate-400 px-4 py-2 rounded-none cursor-pointer bg-black/20"
+          className="absolute top-10 right-8 text-[10px] tracking-[0.2em] text-slate-400 hover:text-white transition-all uppercase group flex items-center gap-2 cursor-pointer"
         >
-          [ ESC ] CLOSE
+          <span className="w-6 h-px bg-slate-400 group-hover:bg-white group-hover:w-8 transition-all" /> CLOSE
         </button>
 
-        <div className="mt-16 space-y-6">
-          {/* ABOUT SECTION (OCEAN) */}
+        <div className="mt-16 space-y-6 flex-1 flex flex-col justify-center">
+          
+          {/* ABOUT SECTION */}
           {activeMenu === 'about' && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-700 delay-100">
-              <div className="text-xs text-cyan-400 tracking-[0.3em] mb-2 font-bold">DEPTH: -30M // BENEATH THE SURFACE</div>
-              <h2 className="text-4xl font-black text-white mb-6">WHO I AM.</h2>
-              <p className="text-slate-300 leading-relaxed text-sm mb-6">
-                I am Bayu Darmawan, a Full-Stack Developer & Creative Technologist based in Indonesia. I don't just build websites; I engineer interactive digital dimensions.
-              </p>
-              <p className="text-slate-300 leading-relaxed text-sm mb-8">
-                Currently managing technology and digital platforms for <b>Crown Allstar</b> and exploring the bleeding edge of Web3/WebGL ecosystems. My philosophy: "Code is poetry, optimization is art."
-              </p>
-              <button className="w-full py-4 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-white border border-cyan-500/30 transition-all uppercase tracking-widest text-xs font-bold cursor-pointer">
-                Download Resume (PDF)
+            <div className="animate-in fade-in slide-in-from-right-8 duration-[800ms] delay-100">
+              <div className="text-[10px] text-cyan-400 tracking-[0.3em] mb-4 font-bold">01 // BENEATH THE SURFACE</div>
+              <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">The <span className="italic font-light text-slate-400">Architect</span>.</h2>
+              <div className="space-y-6 text-slate-300 font-light text-sm leading-relaxed">
+                <p>
+                  My name is Bayu Darmawan. Based in Indonesia, I specialize in bridging the gap between rigorous software engineering and fluid, interactive design.
+                </p>
+                <p>
+                  As the technology lead for <b>Crown Allstar</b> and an active contributor to the Web3/WebGL ecosystem, I treat code as poetry and optimization as an art form. My goal is to build interfaces that not only work flawlessly but feel alive.
+                </p>
+              </div>
+              <button className="mt-12 w-full py-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all uppercase tracking-widest text-[10px] font-bold cursor-pointer">
+                Download Resume
               </button>
             </div>
           )}
 
-          {/* PORTFOLIO SECTION (ABYSS) */}
+          {/* PORTFOLIO SECTION */}
           {activeMenu === 'portfolio' && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-700 delay-100">
-              <div className="text-xs text-blue-500 tracking-[0.3em] mb-2 font-bold">DEPTH: -60M // DEEP DIVES</div>
-              <h2 className="text-4xl font-black text-white mb-6">SELECTED WORKS.</h2>
-              
-              <div className="space-y-4">
-                <div className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group">
-                  <h3 className="text-lg font-bold text-blue-400 group-hover:text-blue-300">ICA Cheerleading</h3>
-                  <p className="text-xs text-slate-400 mt-1 mb-2">Next.js • Supabase • Cloudflare R2</p>
-                  <p className="text-sm text-slate-300">National cheerleading database & registration platform handling thousands of athletes and secure KTP/KK file migrations.</p>
-                </div>
-
-                <div className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group">
-                  <h3 className="text-lg font-bold text-emerald-400 group-hover:text-emerald-300">Dupoin HR Dashboard</h3>
-                  <p className="text-xs text-slate-400 mt-1 mb-2">React • PostgreSQL • Docker • Lark API</p>
-                  <p className="text-sm text-slate-300">Enterprise internal tool for tracking P&L, integrating multilateral trading data with Lark Base HR.</p>
-                </div>
-
-                <div className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group">
-                  <h3 className="text-lg font-bold text-pink-400 group-hover:text-pink-300">Crown Sponsorship AI</h3>
-                  <p className="text-xs text-slate-400 mt-1 mb-2">Node.js • DeepSeek AI • Puppeteer</p>
-                  <p className="text-sm text-slate-300">AI-powered PDF proposal generator integrating custom LLM prompts to tailor sponsorships per brand.</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SERVICES / SKILLS SECTION (SKY) */}
-          {activeMenu === 'services' && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-700 delay-100">
-              <div className="text-xs text-pink-400 tracking-[0.3em] mb-2 font-bold">ALT: 30KM // THE ARSENAL</div>
-              <h2 className="text-4xl font-black text-white mb-6">TECH STACK.</h2>
-              <p className="text-slate-300 leading-relaxed text-sm mb-6">
-                Equipped with modern battle-tested frameworks to conquer both the frontend aesthetics and backend complexities.
-              </p>
+            <div className="animate-in fade-in slide-in-from-right-8 duration-[800ms] delay-100">
+              <div className="text-[10px] text-blue-400 tracking-[0.3em] mb-4 font-bold">02 // DEEP DIVES</div>
+              <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Selected <span className="italic font-light text-slate-400">Works</span>.</h2>
               
               <div className="space-y-6">
+                <div className="group cursor-pointer">
+                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-blue-400/50 transition-colors" />
+                  <h3 className="text-xl font-medium text-white group-hover:text-blue-400 transition-colors">ICA Cheerleading</h3>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Next.js • Supabase • Cloudflare R2</p>
+                  <p className="text-xs text-slate-400 font-light leading-relaxed">National database & registration platform handling thousands of athletes and secure data migrations.</p>
+                </div>
+
+                <div className="group cursor-pointer">
+                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-emerald-400/50 transition-colors" />
+                  <h3 className="text-xl font-medium text-white group-hover:text-emerald-400 transition-colors">Dupoin Enterprise</h3>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">React • PostgreSQL • Lark API</p>
+                  <p className="text-xs text-slate-400 font-light leading-relaxed">Internal HR and Finance tool for tracking P&L and integrating multilateral trading data.</p>
+                </div>
+
+                <div className="group cursor-pointer">
+                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-pink-400/50 transition-colors" />
+                  <h3 className="text-xl font-medium text-white group-hover:text-pink-400 transition-colors">Crown AI Core</h3>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Node.js • DeepSeek AI • Puppeteer</p>
+                  <p className="text-xs text-slate-400 font-light leading-relaxed">AI-powered PDF proposal generator tailoring intelligent sponsorships per brand dynamically.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SERVICES / SKILLS SECTION */}
+          {activeMenu === 'services' && (
+            <div className="animate-in fade-in slide-in-from-right-8 duration-[800ms] delay-100">
+              <div className="text-[10px] text-indigo-400 tracking-[0.3em] mb-4 font-bold">03 // THE ARSENAL</div>
+              <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Technical <span className="italic font-light text-slate-400">Stack</span>.</h2>
+              <p className="text-slate-300 font-light text-sm leading-relaxed mb-10">
+                Equipped with modern, battle-tested frameworks to conquer both frontend aesthetics and backend complexities.
+              </p>
+              
+              <div className="space-y-8">
                 <div>
-                  <h3 className="text-sm font-bold text-white mb-3 uppercase tracking-wider">Frontend & 3D</h3>
+                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Visual & Interface</h3>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-full border border-pink-500/30">Next.js / React</span>
-                    <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-full border border-pink-500/30">Three.js / WebGL</span>
-                    <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-full border border-pink-500/30">React Three Fiber</span>
-                    <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-full border border-pink-500/30">Tailwind CSS</span>
-                    <span className="px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded-full border border-pink-500/30">GSAP / Lenis</span>
+                    {['Next.js', 'React', 'Three.js', 'WebGL', 'R3F', 'Tailwind', 'GSAP'].map(tech => (
+                      <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default">{tech}</span>
+                    ))}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-white mb-3 uppercase tracking-wider">Backend & Cloud</h3>
+                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Architecture & Cloud</h3>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30">Node.js / Express</span>
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30">PostgreSQL</span>
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30">Supabase / Firebase</span>
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30">Docker / PM2</span>
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30">VPS / Nginx</span>
+                    {['Node.js', 'PostgreSQL', 'Supabase', 'Firebase', 'Docker', 'PM2', 'Nginx'].map(tech => (
+                      <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default">{tech}</span>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* CONTACT SECTION (SPACE) */}
+          {/* CONTACT SECTION */}
           {activeMenu === 'contact' && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-700 delay-100">
-              <div className="text-xs text-amber-400 tracking-[0.3em] mb-2 font-bold">ALT: 60KM // TRANSMISSION</div>
-              <h2 className="text-4xl font-black text-white mb-6">INITIATE CONTACT.</h2>
-              <p className="text-slate-300 leading-relaxed text-sm mb-8">
-                Ready to build something out of this world? Establish a secure connection through the hyperspace relay.
+            <div className="animate-in fade-in slide-in-from-right-8 duration-[800ms] delay-100">
+              <div className="text-[10px] text-amber-400 tracking-[0.3em] mb-4 font-bold">04 // TRANSMISSION</div>
+              <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Initiate <span className="italic font-light text-slate-400">Contact</span>.</h2>
+              <p className="text-slate-300 font-light text-sm leading-relaxed mb-10">
+                Ready to build something out of this world? Establish a secure connection through the relay.
               </p>
               
-              <div className="space-y-3">
-                <a href="https://github.com/gorillaworkout" target="_blank" className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors group">
-                  <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-amber-400 group-hover:bg-amber-400 group-hover:text-black transition-colors">
-                    {/* Github Icon */}
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-                  </div>
+              <div className="space-y-4">
+                <a href="https://github.com/gorillaworkout" target="_blank" className="flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 border border-white/5 transition-colors group">
                   <div>
-                    <div className="text-sm font-bold text-white">GitHub</div>
-                    <div className="text-xs text-slate-400">@gorillaworkout</div>
+                    <div className="text-sm font-medium text-white">GitHub</div>
+                    <div className="text-[10px] text-slate-400 tracking-widest uppercase mt-1">@gorillaworkout</div>
                   </div>
+                  <div className="text-slate-500 group-hover:text-white transition-colors transform group-hover:translate-x-1">→</div>
                 </a>
 
-                <a href="https://wa.me/6285133524900" target="_blank" className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors group">
-                  <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-400 group-hover:text-black transition-colors">
-                    {/* Phone/WA Icon */}
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                  </div>
+                <a href="https://wa.me/6285133524900" target="_blank" className="flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 border border-white/5 transition-colors group">
                   <div>
-                    <div className="text-sm font-bold text-white">WhatsApp</div>
-                    <div className="text-xs text-slate-400">+62 851-3352-4900</div>
+                    <div className="text-sm font-medium text-white">WhatsApp</div>
+                    <div className="text-[10px] text-slate-400 tracking-widest uppercase mt-1">+62 851-3352-4900</div>
                   </div>
+                  <div className="text-slate-500 group-hover:text-white transition-colors transform group-hover:translate-x-1">→</div>
                 </a>
               </div>
             </div>
