@@ -11,18 +11,16 @@ const DotLottieReact = dynamic(
   { ssr: false }
 )
 
-// KOORDINAT 3D PENUH (Bukan cuma vertikal, tapi menyebar di sumbu X, Y, dan Z)
-// Ini menciptakan ilusi "Nge-Zoom Maju sambil Menyelam/Terbang"
 const WAYPOINTS = {
-  home: { position: [0, 2, 12], target: [0, 0, 0] },                 // Darat (Tengah)
-  about: { position: [0, -26, -20], target: [0, -30, -40] },         // Laut (Maju ke depan, Menyelam ke bawah)
-  work: { position: [40, -56, -20], target: [40, -60, -40] },        // Palung (Belok Kanan, Menyelam lebih dalam)
-  services: { position: [-40, 32, -5], target: [-40, 30, -20] },     // Awan (Belok Kiri, Terbang ke atas depan)
-  contact: { position: [0, 62, 35], target: [0, 60, 20] },           // Angkasa (Terbang sangat tinggi, mundur ke belakang)
+  home: { position: [0, 2, 12], target: [0, 0, 0] },                 
+  about: { position: [0, -26, -20], target: [0, -30, -40] },         
+  portfolio: { position: [40, -56, -20], target: [40, -60, -40] },   // Portfolio = Work (Abyss)
+  services: { position: [-40, 32, -5], target: [-40, 30, -20] },     // Services = Skills (Sky)
+  contact: { position: [0, 62, 35], target: [0, 60, 20] },           
 
   home_zoom: { position: [0, 1, 6], target: [0, 0, 0] },
   about_zoom: { position: [0, -28, -32], target: [0, -30, -40] },
-  work_zoom: { position: [40, -58, -32], target: [40, -60, -40] },
+  portfolio_zoom: { position: [40, -58, -32], target: [40, -60, -40] },
   services_zoom: { position: [-40, 31, -13], target: [-40, 30, -20] },
   contact_zoom: { position: [0, 61, 27], target: [0, 60, 20] }
 }
@@ -37,7 +35,6 @@ function CameraRig({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpe
 
       const { position, target } = WAYPOINTS[targetKey as keyof typeof WAYPOINTS] || WAYPOINTS.home
       
-      // Perlambat animasi transisi karena jaraknya sekarang sangat jauh (diagonal lintas dimensi)
       controlsRef.current.smoothTime = isPanelOpen ? 1.5 : 1.2;
       
       controlsRef.current.setLookAt(
@@ -123,9 +120,13 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
           <CameraRig activeMenu={activeMenu} isPanelOpen={isPanelOpen} />
           <ThemeController />
 
+          <group position={[0, 60, 20]}>
+            <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
+          </group>
+
           <InteractiveWorld>
             
-            {/* --- ZONA 1: DARATAN (Y: 0, Z: 0) --- */}
+            {/* --- HOME --- */}
             <group position={[0, 0, 0]}>
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
                 <planeGeometry args={[150, 150, 64, 64]} />
@@ -140,11 +141,11 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
               <GorillaLottie />
               
               <Text position={[2, 0, 0]} fontSize={1} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2}>
-                SURFACE
+                HOME
               </Text>
             </group>
 
-            {/* --- ZONA 2: OCEAN (Maju & Turun -> Y: -30, Z: -40) --- */}
+            {/* --- ABOUT --- */}
             <group position={[0, -30, -40]}>
               <Sparkles count={800} scale={[40, 40, 40]} position={[0, 0, 0]} size={4} speed={0.6} opacity={0.5} color="#cffafe" />
               <group position={[2, 0, 0]}>
@@ -156,11 +157,11 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
                 </Float>
               </group>
               <Text position={[-1.5, 0, 0]} fontSize={0.9} color="#bae6fd" anchorX="right" anchorY="middle" letterSpacing={0.2}>
-                OCEAN
+                ABOUT
               </Text>
             </group>
 
-            {/* --- ZONA 3: ABYSS (Maju, Kanan, Turun Dalam -> X: 40, Y: -60, Z: -40) --- */}
+            {/* --- WORK --- */}
             <group position={[40, -60, -40]}>
               <Sparkles count={1000} scale={[40, 40, 40]} position={[0, 0, 0]} size={2} speed={0.1} opacity={0.8} color="#38bdf8" />
               <group position={[-2, 0, 0]}>
@@ -172,11 +173,11 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
                 </Float>
               </group>
               <Text position={[1.5, 0, 0]} fontSize={0.9} color="#38bdf8" anchorX="left" anchorY="middle" letterSpacing={0.2}>
-                ABYSS
+                WORK
               </Text>
             </group>
 
-            {/* --- ZONA 4: SKY (Maju Kiri, Naik -> X: -40, Y: 30, Z: -20) --- */}
+            {/* --- SKILLS --- */}
             <group position={[-40, 30, -20]}>
               <group position={[0, -4, -8]}>
                 <Float speed={1} floatIntensity={0.5}>
@@ -198,13 +199,12 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
                 </Float>
               </group>
               <Text position={[-1.5, 0, 0]} fontSize={0.9} color="#f8fafc" anchorX="right" anchorY="middle" letterSpacing={0.2}>
-                SKY
+                SKILLS
               </Text>
             </group>
 
-            {/* --- ZONA 5: SPACE (Naik Tinggi, Mundur -> X: 0, Y: 60, Z: 20) --- */}
+            {/* --- CONTACT --- */}
             <group position={[0, 60, 20]}>
-              <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
               <group position={[-2, 0, 0]}>
                 <Float speed={4} floatIntensity={1} rotationIntensity={0.5}>
                   <mesh>
@@ -218,7 +218,7 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
                 </Float>
               </group>
               <Text position={[1.5, 0, 0]} fontSize={0.9} color="#ffffff" anchorX="left" anchorY="middle" letterSpacing={0.2}>
-                SPACE
+                CONTACT
               </Text>
             </group>
 
