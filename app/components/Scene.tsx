@@ -4,7 +4,6 @@ import { useRef, useEffect, Suspense, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edges, MeshTransmissionMaterial, Html } from '@react-three/drei'
 import * as THREE from 'three'
-// Import Player secara dinamis supaya tidak render di Server (mencegah error "document is not defined")
 import dynamic from 'next/dynamic'
 
 const LottiePlayer = dynamic(
@@ -12,27 +11,51 @@ const LottiePlayer = dynamic(
   { ssr: false }
 )
 
-// KOORDINAT VERTIKAL (Elegan & Terstruktur)
+// KOORDINAT ZOOM-IN TRANSISI
 const WAYPOINTS = {
+  // Koordinat asli:
   home: { position: [0, 2, 12], target: [0, 0, 0] },
   about: { position: [0, -28, 12], target: [0, -30, 0] },
-  portfolio: { position: [0, -58, 12], target: [0, -60, 0] },
-  services: { position: [0, 28, 12], target: [0, 30, 0] },
-  contact: { position: [0, 58, 12], target: [0, 60, 0] }
+  work: { position: [0, -58, 12], target: [0, -60, 0] },
+  contact: { position: [0, 58, 12], target: [0, 60, 0] },
+
+  // Koordinat ZOOM-IN (Maju mendekati objek 3D) saat panel terbuka
+  home_zoom: { position: [0, 1, 5], target: [0, 0, 0] },
+  about_zoom: { position: [0, -29, 5], target: [0, -30, 0] },
+  work_zoom: { position: [0, -59, 5], target: [0, -60, 0] },
+  contact_zoom: { position: [0, 59, 5], target: [0, 60, 0] }
 }
 
-function CameraRig({ activeMenu }: { activeMenu: string }) {
+function CameraRig({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpen: boolean }) {
   const controlsRef = useRef<any>(null)
+  
   useEffect(() => {
     if (controlsRef.current) {
-      const { position, target } = WAYPOINTS[activeMenu as keyof typeof WAYPOINTS] || WAYPOINTS.home
+      // Jika panel sedang tertutup dan menu bukan home, otomatis arahkan ke home untuk animasi
+      let targetKey = activeMenu;
+      
+      // Jika panel terbuka (user sedang baca), kamera zoom-in
+      if (isPanelOpen && activeMenu !== 'home') {
+        targetKey = `${activeMenu}_zoom`;
+      } 
+      // Jika panel terbuka di home, zoom-in sedikit ke gorilla
+      else if (isPanelOpen && activeMenu === 'home') {
+        targetKey = 'home_zoom';
+      }
+
+      const { position, target } = WAYPOINTS[targetKey as keyof typeof WAYPOINTS] || WAYPOINTS.home
+      
+      // Kecepatan kamera disesuaikan. Saat zoom-in (panel buka) agak lambat biar cinematic.
+      controlsRef.current.smoothTime = isPanelOpen ? 1.2 : 0.8;
+      
       controlsRef.current.setLookAt(
         position[0], position[1], position[2], 
         target[0], target[1], target[2], 
         true 
       )
     }
-  }, [activeMenu])
+  }, [activeMenu, isPanelOpen])
+
   return (
     <CameraControls 
       ref={controlsRef} smoothTime={0.8} 
@@ -55,7 +78,6 @@ function InteractiveWorld({ children }: { children: React.ReactNode }) {
   return <group ref={worldRef}>{children}</group>
 }
 
-// Lottie Gorilla Component (Menggunakan HTML 3D)
 function GorillaLottie() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -63,19 +85,8 @@ function GorillaLottie() {
   return (
     <group position={[-2.5, -2, 0]}>
       {mounted && (
-        <Html 
-          transform       // Jadikan objek 3D yang bisa diputar, bukan div datar
-          occlude         // Bisa tertutup objek 3D lain di depannya
-          position={[0, 1.5, 0]} 
-          scale={0.5}     // Sesuaikan ukuran Lottie-nya
-          style={{ width: '400px', height: '400px' }}
-        >
-          <LottiePlayer
-            autoplay
-            loop
-            src="/gorilla.lottie"
-            style={{ width: '100%', height: '100%' }}
-          />
+        <Html transform occlude position={[0, 1.5, 0]} scale={0.5} style={{ width: '400px', height: '400px' }}>
+          <LottiePlayer autoplay loop src="/gorilla.lottie" style={{ width: '100%', height: '100%' }} />
         </Html>
       )}
     </group>
@@ -106,7 +117,7 @@ function ThemeController() {
   return null
 }
 
-export default function Scene({ activeMenu }: { activeMenu: string }) {
+export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpen: boolean }) {
   return (
     <div className="fixed inset-0 z-0">
       <Canvas>
@@ -118,7 +129,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
           <directionalLight position={[10, 20, 10]} intensity={2} color="#ffffff" />
           <directionalLight position={[-10, -20, -10]} intensity={1} color="#38bdf8" />
           
-          <CameraRig activeMenu={activeMenu} />
+          <CameraRig activeMenu={activeMenu} isPanelOpen={isPanelOpen} />
           <ThemeController />
 
           <Sparkles count={1500} scale={[40, 150, 40]} position={[0, 0, -5]} size={1.5} speed={0.2} opacity={0.3} color="#e2e8f0" />
@@ -129,22 +140,17 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
 
           <InteractiveWorld>
             
-            {/* --- ZONA 1: ORIGIN / HOME (Y: 0) --- */}
+            {/* --- ZONA 1: HOME (Y: 0) --- */}
             <group position={[0, 0, 0]}>
-              {/* Lantai Rumput Alien / Sci-fi (Bukan rumput hijau biasa agar masuk tema) */}
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
                 <planeGeometry args={[100, 100, 64, 64]} />
-                {/* Efek daratan tidak rata (displacement) */}
                 <MeshDistortMaterial color="#0f172a" roughness={0.9} distort={0.2} speed={0.5} />
               </mesh>
-              
-              {/* Garis-garis kontur topografi di tanah */}
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.9, 0]}>
                 <planeGeometry args={[100, 100, 32, 32]} />
                 <meshBasicMaterial color="#38bdf8" wireframe opacity={0.1} transparent />
               </mesh>
 
-              {/* LOTTIE GORILLA BERDIRI DI TANAH */}
               <GorillaLottie />
               
               <Text position={[1.5, 0, 0]} fontSize={0.9} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2}>
@@ -152,7 +158,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
               </Text>
             </group>
 
-            {/* --- ZONA 2: FLUIDITY / ABOUT (Y: -30) --- */}
+            {/* --- ZONA 2: ABOUT (Y: -30) --- */}
             <group position={[0, -30, 0]}>
               <group position={[2, 0, 0]}>
                 <Float speed={3} floatIntensity={2} rotationIntensity={1}>
@@ -167,7 +173,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
               </Text>
             </group>
 
-            {/* --- ZONA 3: STRUCTURE / WORK (Y: -60) --- */}
+            {/* --- ZONA 3: WORK (Y: -60) --- */}
             <group position={[0, -60, 0]}>
               <group position={[-2, 0, 0]}>
                 <Float speed={1} floatIntensity={1} rotationIntensity={1}>
@@ -183,30 +189,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
               </Text>
             </group>
 
-            {/* --- ZONA 4: ELEVATION / SKILLS (Y: 30) --- */}
-            <group position={[0, 30, 0]}>
-              <group position={[2, 0, 0]}>
-                <Float speed={2} floatIntensity={1.5} rotationIntensity={2}>
-                  <mesh rotation={[Math.PI/3, 0, 0]}>
-                    <torusGeometry args={[1.5, 0.05, 16, 100]} />
-                    <meshStandardMaterial color="#818cf8" emissive="#818cf8" emissiveIntensity={0.5} />
-                  </mesh>
-                  <mesh rotation={[-Math.PI/3, 0, 0]} scale={0.7}>
-                    <torusGeometry args={[1.5, 0.05, 16, 100]} />
-                    <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.5} />
-                  </mesh>
-                  <mesh>
-                    <sphereGeometry args={[0.5, 32, 32]} />
-                    <MeshTransmissionMaterial transmission={1} thickness={2} roughness={0} color="#ffffff" />
-                  </mesh>
-                </Float>
-              </group>
-              <Text position={[-1.5, 0, 0]} fontSize={0.9} color="#818cf8" anchorX="right" anchorY="middle" letterSpacing={0.2}>
-                ELEVATION
-              </Text>
-            </group>
-
-            {/* --- ZONA 5: BEYOND / CONTACT (Y: 60) --- */}
+            {/* --- ZONA 4: CONTACT (Y: 60) --- */}
             <group position={[0, 60, 0]}>
               <group position={[-2, 0, 0]}>
                 <Float speed={1} floatIntensity={1} rotationIntensity={0.5}>
