@@ -6,24 +6,25 @@ import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edge
 import * as THREE from 'three'
 import dynamic from 'next/dynamic'
 
-// Menggunakan library terbaru dari LottieFiles untuk format .lottie
 const DotLottieReact = dynamic(
   () => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact),
   { ssr: false }
 )
 
+// KOORDINAT 3D PENUH (Bukan cuma vertikal, tapi menyebar di sumbu X, Y, dan Z)
+// Ini menciptakan ilusi "Nge-Zoom Maju sambil Menyelam/Terbang"
 const WAYPOINTS = {
-  home: { position: [0, 2, 12], target: [0, 0, 0] },
-  about: { position: [0, -28, 12], target: [0, -30, 0] },
-  work: { position: [0, -58, 12], target: [0, -60, 0] },
-  services: { position: [0, 28, 12], target: [0, 30, 0] },
-  contact: { position: [0, 58, 12], target: [0, 60, 0] },
+  home: { position: [0, 2, 12], target: [0, 0, 0] },                 // Darat (Tengah)
+  about: { position: [0, -26, -20], target: [0, -30, -40] },         // Laut (Maju ke depan, Menyelam ke bawah)
+  work: { position: [40, -56, -20], target: [40, -60, -40] },        // Palung (Belok Kanan, Menyelam lebih dalam)
+  services: { position: [-40, 32, -5], target: [-40, 30, -20] },     // Awan (Belok Kiri, Terbang ke atas depan)
+  contact: { position: [0, 62, 35], target: [0, 60, 20] },           // Angkasa (Terbang sangat tinggi, mundur ke belakang)
 
   home_zoom: { position: [0, 1, 6], target: [0, 0, 0] },
-  about_zoom: { position: [0, -29, 6], target: [0, -30, 0] },
-  work_zoom: { position: [0, -59, 6], target: [0, -60, 0] },
-  services_zoom: { position: [0, 29, 6], target: [0, 30, 0] },
-  contact_zoom: { position: [0, 59, 6], target: [0, 60, 0] }
+  about_zoom: { position: [0, -28, -32], target: [0, -30, -40] },
+  work_zoom: { position: [40, -58, -32], target: [40, -60, -40] },
+  services_zoom: { position: [-40, 31, -13], target: [-40, 30, -20] },
+  contact_zoom: { position: [0, 61, 27], target: [0, 60, 20] }
 }
 
 function CameraRig({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpen: boolean }) {
@@ -35,7 +36,9 @@ function CameraRig({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpe
       if (isPanelOpen) targetKey = `${activeMenu}_zoom`;
 
       const { position, target } = WAYPOINTS[targetKey as keyof typeof WAYPOINTS] || WAYPOINTS.home
-      controlsRef.current.smoothTime = isPanelOpen ? 1.2 : 0.8;
+      
+      // Perlambat animasi transisi karena jaraknya sekarang sangat jauh (diagonal lintas dimensi)
+      controlsRef.current.smoothTime = isPanelOpen ? 1.5 : 1.2;
       
       controlsRef.current.setLookAt(
         position[0], position[1], position[2], 
@@ -47,7 +50,7 @@ function CameraRig({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpe
 
   return (
     <CameraControls 
-      ref={controlsRef} smoothTime={0.8} 
+      ref={controlsRef} smoothTime={1.2} 
       mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 0 }}
       touches={{ one: 0, two: 0, three: 0 }}
       minDistance={0} maxDistance={Infinity}
@@ -67,7 +70,6 @@ function InteractiveWorld({ children }: { children: React.ReactNode }) {
   return <group ref={worldRef}>{children}</group>
 }
 
-// 1. LOTTIE COMPONENT (Update library terbaru untuk .lottie)
 function GorillaLottie() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -75,37 +77,25 @@ function GorillaLottie() {
   return (
     <group position={[-2.5, -0.5, 0]}>
       {mounted && (
-        <Html 
-          transform 
-          occlude 
-          position={[0, 1, 0]} 
-          scale={0.5} 
-          style={{ width: '500px', height: '500px' }} // Lebarkan sedikit biar lega
-        >
-          <DotLottieReact
-            src="/gorilla.lottie"
-            loop
-            autoplay
-          />
+        <Html transform occlude position={[0, 1, 0]} scale={0.5} style={{ width: '500px', height: '500px' }}>
+          <DotLottieReact src="/gorilla.lottie" loop autoplay />
         </Html>
       )}
     </group>
   )
 }
 
-// 2. TEMA WARNA
 function ThemeController() {
   const { scene, camera } = useThree()
   
   const colorSpace = new THREE.Color("#020617") 
   const colorSky = new THREE.Color("#38bdf8")   
   const colorSurface = new THREE.Color("#082f49") 
-  const colorOcean = new THREE.Color("#1e3a8a") // Biru laut dalam
+  const colorOcean = new THREE.Color("#1e3a8a") 
   const colorAbyss = new THREE.Color("#000000") 
   
   useFrame(() => {
     let targetColor = colorSurface
-    
     const y = camera.position.y
     if (y > 45) targetColor = colorSpace
     else if (y > 15 && y <= 45) targetColor = colorSky
@@ -133,27 +123,18 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
           <CameraRig activeMenu={activeMenu} isPanelOpen={isPanelOpen} />
           <ThemeController />
 
-          <group position={[0, 60, 0]}>
-            <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
-          </group>
-
           <InteractiveWorld>
             
-            {/* --- ZONA 1: DARATAN (Y: 0) --- */}
+            {/* --- ZONA 1: DARATAN (Y: 0, Z: 0) --- */}
             <group position={[0, 0, 0]}>
-              {/* Tanah Rumput Savana Hijau */}
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
                 <planeGeometry args={[150, 150, 64, 64]} />
                 <MeshDistortMaterial color="#064e3b" roughness={0.9} distort={0.15} speed={0.2} />
               </mesh>
-              
-              {/* Garis kontur topografi di tanah */}
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.9, 0]}>
                 <planeGeometry args={[150, 150, 32, 32]} />
                 <meshBasicMaterial color="#34d399" wireframe opacity={0.1} transparent />
               </mesh>
-
-              {/* Kabut Embun Savana */}
               <Sparkles count={500} scale={[60, 2, 60]} position={[0, -1, 0]} size={3} speed={0.2} opacity={0.4} color="#a7f3d0" />
 
               <GorillaLottie />
@@ -163,9 +144,9 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
               </Text>
             </group>
 
-            {/* --- ZONA 2: OCEAN (Y: -30) --- */}
-            <group position={[0, -30, 0]}>
-              <Sparkles count={800} scale={[30, 30, 30]} position={[0, 0, 0]} size={4} speed={0.6} opacity={0.5} color="#cffafe" />
+            {/* --- ZONA 2: OCEAN (Maju & Turun -> Y: -30, Z: -40) --- */}
+            <group position={[0, -30, -40]}>
+              <Sparkles count={800} scale={[40, 40, 40]} position={[0, 0, 0]} size={4} speed={0.6} opacity={0.5} color="#cffafe" />
               <group position={[2, 0, 0]}>
                 <Float speed={3} floatIntensity={3} rotationIntensity={1}>
                   <mesh>
@@ -179,8 +160,8 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
               </Text>
             </group>
 
-            {/* --- ZONA 3: ABYSS (Y: -60) --- */}
-            <group position={[0, -60, 0]}>
+            {/* --- ZONA 3: ABYSS (Maju, Kanan, Turun Dalam -> X: 40, Y: -60, Z: -40) --- */}
+            <group position={[40, -60, -40]}>
               <Sparkles count={1000} scale={[40, 40, 40]} position={[0, 0, 0]} size={2} speed={0.1} opacity={0.8} color="#38bdf8" />
               <group position={[-2, 0, 0]}>
                 <Float speed={1} floatIntensity={1} rotationIntensity={1}>
@@ -195,8 +176,8 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
               </Text>
             </group>
 
-            {/* --- ZONA 4: SKY (Y: 30) --- */}
-            <group position={[0, 30, 0]}>
+            {/* --- ZONA 4: SKY (Maju Kiri, Naik -> X: -40, Y: 30, Z: -20) --- */}
+            <group position={[-40, 30, -20]}>
               <group position={[0, -4, -8]}>
                 <Float speed={1} floatIntensity={0.5}>
                   <mesh position={[-4, 0, 0]}><sphereGeometry args={[2.5, 32, 32]}/><meshStandardMaterial color="#f8fafc" roughness={1} /></mesh>
@@ -221,8 +202,9 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
               </Text>
             </group>
 
-            {/* --- ZONA 5: SPACE (Y: 60) --- */}
-            <group position={[0, 60, 0]}>
+            {/* --- ZONA 5: SPACE (Naik Tinggi, Mundur -> X: 0, Y: 60, Z: 20) --- */}
+            <group position={[0, 60, 20]}>
+              <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
               <group position={[-2, 0, 0]}>
                 <Float speed={4} floatIntensity={1} rotationIntensity={0.5}>
                   <mesh>
