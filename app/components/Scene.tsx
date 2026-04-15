@@ -141,23 +141,20 @@ export default function Scene({ activeMenu, isPanelOpen }: { activeMenu: string,
             
             {/* --- ZONA 1: DARATAN (Y: 0) --- */}
             <group position={[0, 0, 0]}>
-              {/* DESAIN SURFACE BARU: Batu Slate / Platform Melayang Minimalis */}
-              <Float speed={1} floatIntensity={0.2}>
-                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
-                  {/* Lantai bundar solid bukan plane kotak rumput, terlihat lebih premium */}
-                  <cylinderGeometry args={[15, 15, 0.5, 64]} />
-                  <meshStandardMaterial color="#0f172a" roughness={0.8} metalness={0.2} />
-                  <Edges scale={1} threshold={15} color="#38bdf8" />
-                </mesh>
-                
-                {/* Ring hologram berputar di bawah platform */}
-                <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.5, 0]}>
-                  <ringGeometry args={[16, 16.2, 64]} />
-                  <meshBasicMaterial color="#38bdf8" transparent opacity={0.3} />
-                </mesh>
-              </Float>
+              {/* Tanah Rumput Savana Hijau */}
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
+                <planeGeometry args={[150, 150, 64, 64]} />
+                <MeshDistortMaterial color="#064e3b" roughness={0.9} distort={0.15} speed={0.2} />
+              </mesh>
+              
+              {/* Garis kontur topografi di tanah */}
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.9, 0]}>
+                <planeGeometry args={[150, 150, 32, 32]} />
+                <meshBasicMaterial color="#34d399" wireframe opacity={0.1} transparent />
+              </mesh>
 
-              <Sparkles count={300} scale={[20, 5, 20]} position={[0, 0, 0]} size={2} speed={0.4} opacity={0.5} color="#38bdf8" />
+              {/* Kabut Embun Savana */}
+              <Sparkles count={500} scale={[60, 2, 60]} position={[0, -1, 0]} size={3} speed={0.2} opacity={0.4} color="#a7f3d0" />
 
               <GorillaLottie />
               
