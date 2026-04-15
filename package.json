@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@dotlottie/react-player": "^1.6.19",
+    "@lottiefiles/dotlottie-react": "^0.19.0",
     "@lottiefiles/lottie-player": "^2.0.12",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@react-three/drei": "^10.7.7",
