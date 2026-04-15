@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import Scene from './components/Scene'
+import ProjectModal from './components/ProjectModal'
+import { projectsData } from './data/projects'
 
 export default function Home() {
   const [activeMenu, setActiveMenu] = useState('home')
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<any>(null)
 
   const handleMenuClick = (menu: string) => {
     if (menu === 'home') {
@@ -22,8 +25,8 @@ export default function Home() {
       
       <Scene activeMenu={activeMenu} isPanelOpen={isPanelOpen} />
 
-      {/* Navigasi */}
-      <nav className="fixed top-0 left-0 w-full p-6 md:p-10 z-30 flex justify-between items-center pointer-events-auto mix-blend-difference text-white">
+      {/* Navigasi - solid bg + blur so text doesn't overlap */}
+      <nav className={`fixed top-0 left-0 w-full p-6 md:p-10 z-30 flex justify-between items-center pointer-events-auto transition-all duration-300 ${isPanelOpen ? "text-white mix-blend-difference" : "bg-slate-950/80 backdrop-blur-md text-white border-b border-white/5"}`}>
         <div className="flex flex-col">
           <span className="text-sm font-semibold tracking-[0.2em] text-slate-400">PORTFOLIO</span>
           <span className="text-xl md:text-2xl font-black tracking-widest uppercase mt-1">BAYU DARMAWAN</span>
@@ -51,7 +54,7 @@ export default function Home() {
 
       {/* Hero Text */}
       <div className={`fixed bottom-12 left-6 md:left-12 z-10 max-w-3xl pointer-events-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)] transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!isPanelOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-        <h2 className="text-cyan-400 font-bold tracking-[0.3em] mb-4 text-xs md:text-sm">FULL-STACK DEVELOPER & CREATIVE TECHNOLOGIST</h2>
+        <h2 className="text-cyan-400 font-bold tracking-[0.3em] mb-4 text-xs md:text-sm">FULL-STACK DEVELOPER &amp; CREATIVE TECHNOLOGIST</h2>
         <h1 className="text-5xl md:text-[5.5rem] font-medium mb-6 text-white leading-[1.1] tracking-tight">
           Crafting digital
           <br/>
@@ -85,7 +88,7 @@ export default function Home() {
               <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">The <span className="italic font-light text-slate-400">Architect</span>.</h2>
               <div className="space-y-5 text-slate-300 font-light text-sm leading-relaxed">
                 <p>
-                  I'm <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer and Creative Technologist based in <b className="text-white font-medium">Bandung, Indonesia</b>. I specialize in building end-to-end web applications — from database architecture to immersive 3D front-end experiences.
+                  I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer and Creative Technologist based in <b className="text-white font-medium">Bandung, Indonesia</b>. I specialize in building end-to-end web applications — from database architecture to immersive 3D front-end experiences.
                 </p>
                 <p>
                   Currently serving as the <b className="text-white font-medium">Technology Lead for Crown Allstar</b> (15x Indonesian National Cheerleading Champion, ICU World Cup representative), where I manage all digital platforms, data systems, and AI-powered tools.
@@ -94,7 +97,7 @@ export default function Home() {
                   I also work at <b className="text-white font-medium">Dupoin</b>, a financial services company, where I build internal enterprise dashboards integrating Lark HR, PostgreSQL, and Xero accounting APIs.
                 </p>
                 <p>
-                  My philosophy: <span className="italic text-cyan-300">"Code is poetry, optimization is art, and every interface should feel alive."</span>
+                  My philosophy: <span className="italic text-cyan-300">&quot;Code is poetry, optimization is art, and every interface should feel alive.&quot;</span>
                 </p>
               </div>
               <div className="mt-10 pt-6 border-t border-white/10">
@@ -102,7 +105,7 @@ export default function Home() {
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div><span className="text-slate-500">Location</span><br/><span className="text-white">Bandung, Indonesia</span></div>
                   <div><span className="text-slate-500">Experience</span><br/><span className="text-white">5+ Years</span></div>
-                  <div><span className="text-slate-500">Specialty</span><br/><span className="text-white">Full-Stack & WebGL</span></div>
+                  <div><span className="text-slate-500">Specialty</span><br/><span className="text-white">Full-Stack &amp; WebGL</span></div>
                   <div><span className="text-slate-500">Current Role</span><br/><span className="text-white">Tech Lead @ Crown Allstar</span></div>
                 </div>
               </div>
@@ -116,82 +119,23 @@ export default function Home() {
               <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Project <span className="italic font-light text-slate-400">Archive</span>.</h2>
               
               <div className="space-y-6">
-                {/* ICA */}
-                <div className="group cursor-pointer">
-                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-blue-400/50 transition-colors" />
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-white group-hover:text-blue-400 transition-colors">ICA Cheerleading Indonesia</h3>
-                    <span className="text-[10px] text-slate-500 mt-1">2024-2026</span>
+                {projectsData.map((project) => (
+                  <div 
+                    key={project.id} 
+                    className="group cursor-pointer"
+                    onClick={() => setSelectedProject(project)}
+                  >
+                    <div className={`h-px w-full bg-white/10 mb-4 transition-colors ${project.borderHover}`} />
+                    <div className="flex justify-between items-start">
+                      <h3 className={`text-lg font-medium text-white transition-colors ${project.textHover}`}>
+                        {project.title}
+                      </h3>
+                      <span className="text-[10px] text-slate-500 mt-1">{project.year}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">{project.shortTech}</p>
+                    <p className="text-xs text-slate-400 font-light leading-relaxed">{project.shortDesc}</p>
                   </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Next.js • Supabase • Cloudflare R2 • Vercel</p>
-                  <p className="text-xs text-slate-400 font-light leading-relaxed">National cheerleading organization platform (indonesiancheer.org). Member registration, KTP/KK document management, admin dashboard with storage management, and monthly backup system. Handling 1000+ athlete profiles with province-based data organization.</p>
-                </div>
-
-                {/* Dupoin */}
-                <div className="group cursor-pointer">
-                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-emerald-400/50 transition-colors" />
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-white group-hover:text-emerald-400 transition-colors">Dupoin HR & Finance Dashboard</h3>
-                    <span className="text-[10px] text-slate-500 mt-1">2025-2026</span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">React • PostgreSQL • Docker • Lark API • Xero API • Prisma</p>
-                  <p className="text-xs text-slate-400 font-light leading-relaxed">Enterprise internal dashboard for financial tracking — Income, Expense, P&L, Deposit/Withdrawal, Sales Funnel, IPO datasets, and Multilateral trading. Integrated with Lark Base HR for employee/recruitment data and Xero for accounting. Features amCharts Sankey diagrams, CSV bulk import, and PDF export with ZIP packaging.</p>
-                </div>
-
-                {/* Crown Sponsorship AI */}
-                <div className="group cursor-pointer">
-                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-pink-400/50 transition-colors" />
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-white group-hover:text-pink-400 transition-colors">Crown Sponsorship AI</h3>
-                    <span className="text-[10px] text-slate-500 mt-1">2026</span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Node.js • DeepSeek V3 AI • Puppeteer • Express</p>
-                  <p className="text-xs text-slate-400 font-light leading-relaxed">AI-powered sponsorship proposal generator for Crown Allstar. Custom LLM prompts generate brand-specific content (Why Partner, What We Seek, Tier System) per industry. PDF generation via Puppeteer with dynamic brand customization and mass PDF export.</p>
-                </div>
-
-                {/* Crown Allstar Website */}
-                <div className="group cursor-pointer">
-                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-amber-400/50 transition-colors" />
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-white group-hover:text-amber-400 transition-colors">CrownHub (Crown Allstar App)</h3>
-                    <span className="text-[10px] text-slate-500 mt-1">2024-2026</span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Next.js • Firebase/Firestore • Vercel • Google Auth</p>
-                  <p className="text-xs text-slate-400 font-light leading-relaxed">Team management platform for Crown Allstar cheerleading. Weight tracking (berat badan), training schedule management, attendance system with GPS check-in, athlete profiles, and event coordination. Used by 35+ active athletes weekly.</p>
-                </div>
-
-                {/* MBG Dashboard */}
-                <div className="group cursor-pointer">
-                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-violet-400/50 transition-colors" />
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-white group-hover:text-violet-400 transition-colors">MBG Registration Dashboard</h3>
-                    <span className="text-[10px] text-slate-500 mt-1">2025</span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Next.js • PostgreSQL • Docker</p>
-                  <p className="text-xs text-slate-400 font-light leading-relaxed">2-step event registration system with payment modal, bank account management, bukti bayar upload, ticket quota with race-condition safe locking (FOR UPDATE), admin PIC completion stats, and payment proof review.</p>
-                </div>
-
-                {/* Launchpad */}
-                <div className="group cursor-pointer">
-                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-cyan-400/50 transition-colors" />
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-white group-hover:text-cyan-400 transition-colors">Launchpad (Deploy Dashboard)</h3>
-                    <span className="text-[10px] text-slate-500 mt-1">2026</span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Next.js • PM2 • SSE • Tailwind</p>
-                  <p className="text-xs text-slate-400 font-light leading-relaxed">Custom deployment dashboard for managing multiple VPS applications. Features project status monitoring, one-click restart/rebuild with real-time SSE build logs, toast notifications, and integrated backup management system.</p>
-                </div>
-
-                {/* Undangan Nikah */}
-                <div className="group cursor-pointer">
-                  <div className="h-px w-full bg-white/10 mb-4 group-hover:bg-rose-400/50 transition-colors" />
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-white group-hover:text-rose-400 transition-colors">Undangan Nikah SaaS</h3>
-                    <span className="text-[10px] text-slate-500 mt-1">2025</span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-2 mb-3">Next.js • GitHub</p>
-                  <p className="text-xs text-slate-400 font-light leading-relaxed">Wedding invitation SaaS platform with customizable templates, RSVP management, and guest tracking system.</p>
-                </div>
+                ))}
               </div>
             </div>
           )}
@@ -207,7 +151,7 @@ export default function Home() {
               
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Frontend & UI</h3>
+                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Frontend &amp; UI</h3>
                   <div className="flex flex-wrap gap-2">
                     {['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Lenis Scroll'].map(tech => (
                       <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default">{tech}</span>
@@ -216,7 +160,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">3D & WebGL</h3>
+                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">3D &amp; WebGL</h3>
                   <div className="flex flex-wrap gap-2">
                     {['Three.js', 'React Three Fiber', 'Drei', 'HDRI / Environment Maps', 'Lottie Animation'].map(tech => (
                       <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default">{tech}</span>
@@ -225,7 +169,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Backend & Database</h3>
+                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Backend &amp; Database</h3>
                   <div className="flex flex-wrap gap-2">
                     {['Node.js', 'Express', 'PostgreSQL', 'Prisma ORM', 'Supabase', 'Firebase / Firestore'].map(tech => (
                       <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default">{tech}</span>
@@ -234,7 +178,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">DevOps & Cloud</h3>
+                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">DevOps &amp; Cloud</h3>
                   <div className="flex flex-wrap gap-2">
                     {['Docker', 'PM2', 'Nginx', 'Oracle Cloud VPS', 'Vercel', 'Cloudflare R2'].map(tech => (
                       <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default">{tech}</span>
@@ -243,7 +187,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">AI & Integrations</h3>
+                  <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">AI &amp; Integrations</h3>
                   <div className="flex flex-wrap gap-2">
                     {['DeepSeek AI', 'OpenAI API', 'Lark Base API', 'Xero API', 'Linear API', 'Puppeteer'].map(tech => (
                       <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default">{tech}</span>
@@ -258,9 +202,9 @@ export default function Home() {
           {activeMenu === 'contact' && (
             <div className="animate-in fade-in slide-in-from-right-8 duration-[800ms] delay-100">
               <div className="text-[10px] text-amber-400 tracking-[0.3em] mb-4 font-bold">04 // GET IN TOUCH</div>
-              <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Let's <span className="italic font-light text-slate-400">Connect</span>.</h2>
+              <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Let&apos;s <span className="italic font-light text-slate-400">Connect</span>.</h2>
               <p className="text-slate-300 font-light text-sm leading-relaxed mb-10">
-                Interested in working together? Whether it's a complex enterprise dashboard, an immersive 3D experience, or AI-powered automation — I'm ready to build it.
+                Interested in working together? Whether it&apos;s a complex enterprise dashboard, an immersive 3D experience, or AI-powered automation — I&apos;m ready to build it.
               </p>
               
               <div className="space-y-4">
@@ -292,6 +236,9 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Project Detail Modal */}
+      {selectedProject && <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
 
     </main>
   )
