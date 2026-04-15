@@ -147,7 +147,7 @@ export default function Scene({ activeMenu }: { activeMenu: string }) {
               {/* LOTTIE GORILLA BERDIRI DI TANAH */}
               <GorillaLottie />
               
-              <Text position={[1.5, 0, 0]} fontSize={0.9} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2} font="/orbitron.woff">
+              <Text position={[1.5, 0, 0]} fontSize={0.9} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2}>
                 ORIGIN
               </Text>
             </group>
