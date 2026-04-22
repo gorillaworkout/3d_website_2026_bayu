@@ -81,7 +81,7 @@ function FlowingMenuLink({
       // Start marquee animation
       animRef.current = gsap.to(marqueeInnerRef.current, {
         xPercent: -50,
-        duration: speed / 10,
+        duration: speed,
         ease: "none",
         repeat: -1,
       });

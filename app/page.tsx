@@ -15,7 +15,6 @@ import Terminal from './components/Terminal'
 import GradientText from './components/reactbits/GradientText'
 import Magnet from './components/reactbits/Magnet'
 import SplitText from './components/reactbits/SplitText'
-import DecryptedText from './components/reactbits/DecryptedText'
 import ShinyText from './components/reactbits/ShinyText'
 import CountUp from './components/reactbits/CountUp'
 import ScrollFloat from './components/reactbits/ScrollFloat'
@@ -24,6 +23,9 @@ import ScrollReveal from './components/reactbits/ScrollReveal'
 import { ScrollStack, ScrollStackItem } from './components/reactbits/ScrollStack'
 import { BentoCard, BentoGrid } from './components/reactbits/MagicBento'
 import FlowingMenu from './components/reactbits/FlowingMenu'
+import Waves from './components/reactbits/Waves'
+import TextPressure from './components/reactbits/TextPressure'
+import Aurora from './components/reactbits/Aurora'
 
 /* ── Data ─────────────────────────────────────────── */
 import { projectsData } from './data/projects'
@@ -31,6 +33,9 @@ import { projectsData } from './data/projects'
 /* ── Lazy loaded heavy components (no SSR) ────────── */
 const BlobCursor = dynamic(() => import('./components/BlobCursor'), { ssr: false })
 const Antigravity = dynamic(() => import('./components/reactbits/Antigravity'), { ssr: false })
+const GhostCursor = dynamic(() => import('./components/reactbits/GhostCursor'), { ssr: false })
+const Silk = dynamic(() => import('./components/reactbits/Silk'), { ssr: false })
+const Beams = dynamic(() => import('./components/reactbits/Beams'), { ssr: false })
 
 /* ── Data ─────────────────────────────────────────── */
 const skillCategories = [
@@ -156,29 +161,27 @@ export default function HomePage() {
             {/* Subtle dark overlay */}
             <div className="absolute inset-0 bg-[#050510]/40 z-[1]" />
 
+            {/* GhostCursor */}
+            {mounted && (
+              <GhostCursor
+                color="#06b6d4"
+                trailLength={20}
+                bloomStrength={1.5}
+                brightness={0.8}
+                fadeDelayMs={3000}
+                zIndex={2}
+              />
+            )}
+
             {/* Hero Content */}
             <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
               {/* Giant Name */}
               <h1 className="mb-2">
                 <span className="block text-[clamp(3.5rem,12vw,10rem)] font-black tracking-tighter leading-[0.9]">
-                  {mounted && (
-                    <DecryptedText
-                      text="BAYU"
-                      speed={35}
-                      className="text-white font-mono"
-                      trigger="mount"
-                    />
-                  )}
+                  <ShinyText className="text-white font-mono" speed={3} shimmerColor="rgba(255, 255, 255, 0.5)">BAYU</ShinyText>
                 </span>
                 <span className="block text-[clamp(3rem,10vw,8rem)] font-black tracking-tighter leading-[0.9] mt-2">
-                  {mounted && (
-                    <DecryptedText
-                      text="DARMAWAN"
-                      speed={35}
-                      className="text-white font-mono"
-                      trigger="mount"
-                    />
-                  )}
+                  <ShinyText className="text-white font-mono" speed={3} shimmerColor="rgba(255, 255, 255, 0.5)">DARMAWAN</ShinyText>
                 </span>
               </h1>
 
@@ -222,7 +225,24 @@ export default function HomePage() {
             className="relative w-full min-h-screen flex items-center py-24 md:py-32"
           >
             <div className="gradient-line w-full absolute top-0" />
-            <div className="max-w-6xl mx-auto px-6 md:px-12 w-full">
+
+            {/* Waves Background */}
+            <Waves
+              lineColor="rgba(6, 182, 212, 0.15)"
+              backgroundColor="transparent"
+              waveSpeedX={0.02}
+              waveSpeedY={0.01}
+              waveAmpX={40}
+              waveAmpY={20}
+              xGap={12}
+              yGap={36}
+              friction={0.925}
+              tension={0.012}
+              maxCursorMove={120}
+              className="z-0"
+            />
+
+            <div className="max-w-6xl mx-auto px-6 md:px-12 w-full relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
                 {/* Left — Text */}
@@ -248,6 +268,22 @@ export default function HomePage() {
                   >
                     I&apos;m Bayu Darmawan, a Full-Stack Developer based in Bandung, Indonesia. Tech Lead at Crown Allstar — a 15x National Cheerleading Champion team. I bridge the gap between creative design and robust engineering. Code is poetry, optimization is art.
                   </ScrollReveal>
+
+                  {/* TextPressure interactive quote */}
+                  <div className="my-8">
+                    <TextPressure
+                      text="CODE IS POETRY"
+                      width={true}
+                      weight={true}
+                      italic={true}
+                      alpha={false}
+                      flex={true}
+                      stroke={false}
+                      textColor="#06b6d4"
+                      className="w-full"
+                      minFontSize={24}
+                    />
+                  </div>
 
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-6 mt-10">
@@ -301,9 +337,22 @@ export default function HomePage() {
           <section
             ref={el => { sectionRefs.current['skills'] = el }}
             id="skills"
-            className="relative w-full min-h-screen flex items-center py-24 md:py-32 grid-pattern"
+            className="relative w-full min-h-screen flex items-center py-24 md:py-32 overflow-hidden"
           >
             <div className="gradient-line w-full absolute top-0" />
+
+            {/* Silk Background */}
+            {mounted && (
+              <div className="absolute inset-0 z-0 opacity-30">
+                <Silk
+                  speed={0.5}
+                  scale={1}
+                  color="#1a0a2e"
+                  noiseIntensity={1.5}
+                  rotation={0}
+                />
+              </div>
+            )}
 
             <div className="max-w-6xl mx-auto px-6 md:px-12 w-full relative z-10">
               <ScrollFloat>
@@ -361,11 +410,27 @@ export default function HomePage() {
           <section
             ref={el => { sectionRefs.current['projects'] = el }}
             id="projects"
-            className="relative w-full py-24 md:py-32"
+            className="relative w-full py-24 md:py-32 overflow-hidden"
           >
             <div className="gradient-line w-full absolute top-0" />
 
-            <div className="max-w-6xl mx-auto px-6 md:px-12 w-full">
+            {/* Beams Background */}
+            {mounted && (
+              <div className="absolute inset-0 z-0 opacity-30">
+                <Beams
+                  beamWidth={2}
+                  beamHeight={8}
+                  beamNumber={12}
+                  lightColor="#8b5cf6"
+                  speed={0.8}
+                  noiseIntensity={0.6}
+                  scale={1}
+                  rotation={0}
+                />
+              </div>
+            )}
+
+            <div className="max-w-6xl mx-auto px-6 md:px-12 w-full relative z-10">
               <ScrollFloat>
                 <span className="text-[10px] text-emerald-400 tracking-[0.3em] font-bold uppercase">03 // Work</span>
               </ScrollFloat>
@@ -466,11 +531,17 @@ export default function HomePage() {
           <section
             ref={el => { sectionRefs.current['contact'] = el }}
             id="contact"
-            className="relative w-full min-h-screen flex items-center py-24 md:py-32"
+            className="relative w-full min-h-screen flex items-center py-24 md:py-32 overflow-hidden"
           >
             <div className="gradient-line w-full absolute top-0" />
 
-            <div className="max-w-4xl mx-auto px-6 md:px-12 w-full text-center">
+            {/* Aurora Background */}
+            <Aurora
+              className="z-0 opacity-40"
+              colors={['#0ea5e9', '#7c3aed', '#be185d', '#1e40af']}
+            />
+
+            <div className="max-w-4xl mx-auto px-6 md:px-12 w-full text-center relative z-10">
               <ScrollFloat>
                 <span className="text-[10px] text-amber-400 tracking-[0.3em] font-bold uppercase">04 // Contact</span>
               </ScrollFloat>
@@ -494,7 +565,7 @@ export default function HomePage() {
                 <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
                   <FlowingMenu
                     items={flowingMenuItems}
-                    speed={25}
+                    speed={40}
                     textColor="#e2e8f0"
                     bgColor="transparent"
                     marqueeBgColor="#06b6d4"
