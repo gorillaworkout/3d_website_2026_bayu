@@ -231,3 +231,64 @@ html.lenis, html.lenis body {
   background-size: 200% 100%;
   animation: gradientSlide 3s linear infinite;
 }
+
+/* ── ScrollReveal ──────────────────────────────── */
+.scroll-reveal {
+  margin: 20px 0;
+}
+
+.scroll-reveal-text {
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.scroll-reveal-text .word {
+  display: inline-block;
+}
+
+/* ── ScrollStack ───────────────────────────────── */
+.scroll-stack {
+  position: relative;
+}
+
+.scroll-stack-item {
+  will-change: transform, filter;
+}
+
+/* ── MagicBento ────────────────────────────────── */
+@keyframes bentoRipple {
+  0% { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+@keyframes bentoParticle {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% {
+    transform: translate(
+      calc(cos(var(--angle, 0deg)) * 40px),
+      calc(sin(var(--angle, 0deg)) * 40px)
+    ) scale(0);
+    opacity: 0;
+  }
+}
+
+.bento-card {
+  --glow-x: 50%;
+  --glow-y: 50%;
+}
+
+/* ── GooeyNav ──────────────────────────────────── */
+@keyframes gooeyParticleFade {
+  0% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+/* ── FlowingMenu ───────────────────────────────── */
+.flowing-menu-item {
+  min-height: 56px;
+}
+
+.flowing-menu-item:last-child {
+  border-bottom: none !important;
+}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { Home, User, Wrench, Briefcase, Mail, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import { motion } from 'motion/react'
 
 /* ── Existing components ──────────────────────────── */
@@ -13,21 +13,24 @@ import Terminal from './components/Terminal'
 
 /* ── ReactBits components ─────────────────────────── */
 import GradientText from './components/reactbits/GradientText'
-import SpotlightCard from './components/reactbits/SpotlightCard'
 import Magnet from './components/reactbits/Magnet'
 import SplitText from './components/reactbits/SplitText'
 import DecryptedText from './components/reactbits/DecryptedText'
 import ShinyText from './components/reactbits/ShinyText'
 import CountUp from './components/reactbits/CountUp'
 import ScrollFloat from './components/reactbits/ScrollFloat'
-import Aurora from './components/reactbits/Aurora'
-import Dock from './components/reactbits/Dock'
+import GooeyNav from './components/reactbits/GooeyNav'
+import ScrollReveal from './components/reactbits/ScrollReveal'
+import { ScrollStack, ScrollStackItem } from './components/reactbits/ScrollStack'
+import { BentoCard, BentoGrid } from './components/reactbits/MagicBento'
+import FlowingMenu from './components/reactbits/FlowingMenu'
 
 /* ── Data ─────────────────────────────────────────── */
 import { projectsData } from './data/projects'
 
 /* ── Lazy loaded heavy components (no SSR) ────────── */
 const BlobCursor = dynamic(() => import('./components/BlobCursor'), { ssr: false })
+const Antigravity = dynamic(() => import('./components/reactbits/Antigravity'), { ssr: false })
 
 /* ── Data ─────────────────────────────────────────── */
 const skillCategories = [
@@ -39,9 +42,10 @@ const skillCategories = [
 ]
 
 const contactLinks = [
-  { label: 'GitHub', sub: '@gorillaworkout', href: 'https://github.com/gorillaworkout', color: '#a78bfa' },
-  { label: 'WhatsApp', sub: '+62 851-3352-4900', href: 'https://wa.me/6285133524900', color: '#22c55e' },
-  { label: 'Email', sub: 'darmawanbayu1@gmail.com', href: 'mailto:darmawanbayu1@gmail.com', color: '#f59e0b' },
+  { label: 'GitHub', sub: '@gorillaworkout', href: 'https://github.com/gorillaworkout', color: '#a78bfa', text: 'GitHub — @gorillaworkout', image: '' },
+  { label: 'WhatsApp', sub: '+62 851-3352-4900', href: 'https://wa.me/6285133524900', color: '#22c55e', text: 'WhatsApp — Chat Now', image: '' },
+  { label: 'Email', sub: 'darmawanbayu1@gmail.com', href: 'mailto:darmawanbayu1@gmail.com', color: '#f59e0b', text: 'Email — darmawanbayu1@gmail.com', image: '' },
+  { label: 'LinkedIn', sub: 'Bayu Darmawan', href: 'https://linkedin.com/in/bayudarmawan', color: '#0ea5e9', text: 'LinkedIn — Connect', image: '' },
 ]
 
 const stats = [
@@ -79,13 +83,19 @@ export default function HomePage() {
     }
   }, [])
 
-  const dockItems = [
-    { icon: <Home size={20} />, label: 'Home', onClick: () => scrollTo('hero') },
-    { icon: <User size={20} />, label: 'About', onClick: () => scrollTo('about') },
-    { icon: <Wrench size={20} />, label: 'Skills', onClick: () => scrollTo('skills') },
-    { icon: <Briefcase size={20} />, label: 'Work', onClick: () => scrollTo('projects') },
-    { icon: <Mail size={20} />, label: 'Contact', onClick: () => scrollTo('contact') },
+  const navItems = [
+    { label: 'Home', href: '#hero', onClick: () => scrollTo('hero') },
+    { label: 'About', href: '#about', onClick: () => scrollTo('about') },
+    { label: 'Skills', href: '#skills', onClick: () => scrollTo('skills') },
+    { label: 'Work', href: '#projects', onClick: () => scrollTo('projects') },
+    { label: 'Contact', href: '#contact', onClick: () => scrollTo('contact') },
   ]
+
+  const flowingMenuItems = contactLinks.map(c => ({
+    link: c.href,
+    text: c.text,
+    image: c.image,
+  }))
 
   return (
     <ClickSpark sparkColor="#06b6d4" sparkSize={12} sparkRadius={25} sparkCount={10} duration={500} extraScale={1.5}>
@@ -107,18 +117,44 @@ export default function HomePage() {
           </div>
 
           {/* ═══════════════════════════════════════════
-              SECTION 1: HERO — Clean & Impactful
+              FIXED NAV: GooeyNav at top
+             ═══════════════════════════════════════════ */}
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+            <GooeyNav
+              items={navItems}
+              animationTime={600}
+              particleCount={12}
+              colors={["#06b6d4", "#8b5cf6"]}
+              initialActiveIndex={0}
+            />
+          </div>
+
+          {/* ═══════════════════════════════════════════
+              SECTION 1: HERO — Antigravity Background
              ═══════════════════════════════════════════ */}
           <section
             ref={el => { sectionRefs.current['hero'] = el }}
             id="hero"
             className="relative w-full h-screen flex items-center justify-center overflow-hidden"
           >
-            {/* Aurora Background */}
-            <Aurora />
+            {/* Antigravity Background */}
+            {mounted && (
+              <Antigravity
+                color="#06b6d4"
+                count={200}
+                particleSize={1.5}
+                autoAnimate={true}
+                magnetRadius={10}
+                ringRadius={4}
+                waveSpeed={1.5}
+                lerpSpeed={0.04}
+                depthFactor={2}
+                rotationSpeed={0.4}
+              />
+            )}
 
             {/* Subtle dark overlay */}
-            <div className="absolute inset-0 bg-[#050510]/50 z-[1]" />
+            <div className="absolute inset-0 bg-[#050510]/40 z-[1]" />
 
             {/* Hero Content */}
             <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
@@ -178,7 +214,7 @@ export default function HomePage() {
           </section>
 
           {/* ═══════════════════════════════════════════
-              SECTION 2: ABOUT — Asymmetric Layout
+              SECTION 2: ABOUT — ScrollReveal Bio
              ═══════════════════════════════════════════ */}
           <section
             ref={el => { sectionRefs.current['about'] = el }}
@@ -202,22 +238,16 @@ export default function HomePage() {
                     staggerAmount={0.08}
                   />
 
-                  <ScrollFloat distance={30}>
-                    <div className="space-y-4 text-slate-300 font-light text-sm md:text-base leading-relaxed">
-                      <p>
-                        I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer
-                        based in <b className="text-white font-medium">Bandung, Indonesia</b>.
-                      </p>
-                      <p>
-                        <b className="text-white font-medium">Tech Lead @ Crown Allstar</b> — a
-                        15x National Cheerleading Champion team. I bridge the gap between
-                        creative design and robust engineering.
-                      </p>
-                      <p className="italic text-cyan-300/80">
-                        &quot;Code is poetry, optimization is art.&quot;
-                      </p>
-                    </div>
-                  </ScrollFloat>
+                  {/* ScrollReveal bio */}
+                  <ScrollReveal
+                    enableBlur={true}
+                    baseOpacity={0.1}
+                    baseRotation={3}
+                    blurStrength={4}
+                    textClassName="text-slate-300 font-light"
+                  >
+                    I&apos;m Bayu Darmawan, a Full-Stack Developer based in Bandung, Indonesia. Tech Lead at Crown Allstar — a 15x National Cheerleading Champion team. I bridge the gap between creative design and robust engineering. Code is poetry, optimization is art.
+                  </ScrollReveal>
 
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-6 mt-10">
@@ -266,7 +296,7 @@ export default function HomePage() {
           </section>
 
           {/* ═══════════════════════════════════════════
-              SECTION 3: SKILLS — Glass Card Grid
+              SECTION 3: SKILLS — MagicBento Grid
              ═══════════════════════════════════════════ */}
           <section
             ref={el => { sectionRefs.current['skills'] = el }}
@@ -287,12 +317,19 @@ export default function HomePage() {
                 staggerAmount={0.06}
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <BentoGrid
+                glowColor="rgba(6, 182, 212, 0.12)"
+                spotlightRadius={400}
+                enableSpotlight={true}
+              >
                 {skillCategories.map((cat) => (
                   <ScrollFloat key={cat.title} distance={40}>
-                    <SpotlightCard
-                      className="h-full bg-white/[0.02] border-white/[0.06] p-6"
-                      spotlightColor={`rgba(${parseInt(cat.color.slice(1, 3), 16)}, ${parseInt(cat.color.slice(3, 5), 16)}, ${parseInt(cat.color.slice(5, 7), 16)}, 0.12)`}
+                    <BentoCard
+                      className="h-full p-6"
+                      glowColor={`rgba(${parseInt(cat.color.slice(1, 3), 16)}, ${parseInt(cat.color.slice(3, 5), 16)}, ${parseInt(cat.color.slice(5, 7), 16)}, 0.3)`}
+                      enableTilt={true}
+                      clickEffect={true}
+                      particleCount={6}
                     >
                       <GradientText
                         colors={[cat.color, '#ffffff', cat.color]}
@@ -311,15 +348,15 @@ export default function HomePage() {
                           </span>
                         ))}
                       </div>
-                    </SpotlightCard>
+                    </BentoCard>
                   </ScrollFloat>
                 ))}
-              </div>
+              </BentoGrid>
             </div>
           </section>
 
           {/* ═══════════════════════════════════════════
-              SECTION 4: PROJECTS — Full-Width Stacked
+              SECTION 4: PROJECTS — ScrollStack Cards
              ═══════════════════════════════════════════ */}
           <section
             ref={el => { sectionRefs.current['projects'] = el }}
@@ -340,15 +377,15 @@ export default function HomePage() {
                 staggerAmount={0.06}
               />
 
-              <div className="space-y-6">
+              <ScrollStack cardHeight={500} scaleStep={0.025} topOffset={100}>
                 {projectsData.map((project, index) => {
                   const accentColor = colorMap[project.colorClass] || '#22d3ee'
                   const num = String(index + 1).padStart(2, '0')
                   return (
-                    <ScrollFloat key={project.id} distance={50}>
+                    <ScrollStackItem key={project.id} className="mb-4">
                       <motion.div
                         onClick={() => setSelectedProject(project)}
-                        className="group relative w-full rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden cursor-pointer transition-all duration-500 hover:border-white/[0.12]"
+                        className="group relative w-full rounded-2xl bg-[#0a0a1a] border border-white/[0.06] overflow-hidden cursor-pointer transition-all duration-500 hover:border-white/[0.12]"
                         whileHover={{ y: -2 }}
                         onMouseEnter={(e) => {
                           (e.currentTarget as HTMLElement).style.boxShadow = `0 0 60px ${accentColor}10, inset 0 1px 0 ${accentColor}15`
@@ -392,9 +429,7 @@ export default function HomePage() {
                           </div>
 
                           {/* Right — Gradient mesh preview */}
-                          <div
-                            className="relative h-48 md:h-auto min-h-[160px] overflow-hidden"
-                          >
+                          <div className="relative h-48 md:h-auto min-h-[160px] overflow-hidden">
                             <div
                               className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-500"
                               style={{
@@ -411,7 +446,6 @@ export default function HomePage() {
                                 {project.title.substring(0, 4)}
                               </span>
                             </div>
-                            {/* Bottom accent line */}
                             <div
                               className="absolute bottom-0 left-0 w-full h-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                               style={{ background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }}
@@ -419,15 +453,15 @@ export default function HomePage() {
                           </div>
                         </div>
                       </motion.div>
-                    </ScrollFloat>
+                    </ScrollStackItem>
                   )
                 })}
-              </div>
+              </ScrollStack>
             </div>
           </section>
 
           {/* ═══════════════════════════════════════════
-              SECTION 5: CONTACT — Bold & Minimal
+              SECTION 5: CONTACT — FlowingMenu + Bold
              ═══════════════════════════════════════════ */}
           <section
             ref={el => { sectionRefs.current['contact'] = el }}
@@ -455,31 +489,20 @@ export default function HomePage() {
                 </p>
               </ScrollFloat>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                {contactLinks.map((contact) => (
-                  <ScrollFloat key={contact.label} distance={40}>
-                    <Magnet padding={50} magnetStrength={3}>
-                      <a
-                        href={contact.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="contact-card block p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06] group transition-all duration-300 hover:border-white/[0.12]"
-                        style={{ '--card-color': contact.color } as React.CSSProperties}
-                      >
-                        <div className="text-base font-semibold text-white mb-1 group-hover:text-cyan-300 transition-colors">
-                          {contact.label}
-                        </div>
-                        <div className="text-[11px] text-slate-400 tracking-wider">
-                          {contact.sub}
-                        </div>
-                        <div className="mt-3 text-slate-500 group-hover:text-white transition-colors">
-                          <ArrowUpRight size={16} className="mx-auto" />
-                        </div>
-                      </a>
-                    </Magnet>
-                  </ScrollFloat>
-                ))}
-              </div>
+              {/* FlowingMenu contact links */}
+              <ScrollFloat distance={40}>
+                <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
+                  <FlowingMenu
+                    items={flowingMenuItems}
+                    speed={25}
+                    textColor="#e2e8f0"
+                    bgColor="transparent"
+                    marqueeBgColor="#06b6d4"
+                    marqueeTextColor="#ffffff"
+                    borderColor="rgba(255, 255, 255, 0.06)"
+                  />
+                </div>
+              </ScrollFloat>
 
               {/* Footer */}
               <ScrollFloat distance={20}>
@@ -492,17 +515,10 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* ═══════════════════════════════════════════
-              FIXED ELEMENTS
-             ═══════════════════════════════════════════ */}
-
-          {/* Dock Navigation */}
-          <Dock items={dockItems} />
-
           {/* Project Detail Modal */}
           {selectedProject && <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
 
-          {/* Bottom spacer for dock */}
+          {/* Bottom spacer */}
           <div className="h-20" />
         </main>
       </SmoothScroller>
