@@ -6,7 +6,7 @@
 }
 
 :root {
-  --background: #0f172a;
+  --background: #0a0a1a;
   --foreground: #f8fafc;
 }
 
@@ -38,4 +38,176 @@ html.lenis, html.lenis body {
 
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
+}
+
+/* ── Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── ShinyText Animation ───────────────────────── */
+@keyframes shinyTextMove {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ── GlitchText Animations ─────────────────────── */
+@keyframes glitchAnim1 {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(1px, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes glitchAnim2 {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(2px, -1px); }
+  40% { transform: translate(-2px, 1px); }
+  60% { transform: translate(1px, -2px); }
+  80% { transform: translate(-1px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ── Aurora Background Animations ──────────────── */
+@keyframes auroraMove1 {
+  0% { transform: translate(0%, 0%) scale(1); }
+  100% { transform: translate(30%, 20%) scale(1.2); }
+}
+
+@keyframes auroraMove2 {
+  0% { transform: translate(0%, 0%) scale(1.1); }
+  100% { transform: translate(-20%, 30%) scale(0.9); }
+}
+
+@keyframes auroraMove3 {
+  0% { transform: translate(0%, 0%) scale(0.9); }
+  100% { transform: translate(25%, -15%) scale(1.3); }
+}
+
+@keyframes auroraMove4 {
+  0% { transform: translate(0%, 0%) scale(1); }
+  100% { transform: translate(-30%, -20%) scale(1.1); }
+}
+
+/* ── Scroll Indicator ──────────────────────────── */
+@keyframes scrollBounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+  40% { transform: translateY(8px) translateX(-50%); }
+  60% { transform: translateY(4px) translateX(-50%); }
+}
+
+.scroll-indicator {
+  animation: scrollBounce 2s infinite;
+}
+
+/* ── Fade in up stagger ────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* ── Glow hover effect for tech tags ───────────── */
+.tech-tag {
+  transition: all 0.3s ease;
+}
+
+.tech-tag:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* ── Section transitions ───────────────────────── */
+.section-fade {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section-fade.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Electric border glow for contact cards ────── */
+.contact-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.contact-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent 30%, var(--card-color, #8b5cf6) 50%, transparent 70%);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.contact-card:hover::before {
+  opacity: 1;
+}
+
+.contact-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px -10px var(--card-color, rgba(139, 92, 246, 0.3));
+}
+
+/* ── Noise Overlay (subtle) ────────────────────── */
+.noise-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ── Hide scrollbar on dock area ───────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Gradient line separator ───────────────────── */
+.gradient-line {
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+  height: 1px;
 }

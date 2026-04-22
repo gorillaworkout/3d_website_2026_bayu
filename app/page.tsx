@@ -1,16 +1,39 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import Scene from './components/Scene'
+import dynamic from 'next/dynamic'
+import { Home, User, Wrench, Briefcase, Mail, ArrowUpRight, ChevronDown } from 'lucide-react'
+
+/* ── Existing components ──────────────────────────── */
 import ProjectModal from './components/ProjectModal'
 import ClickSpark from './components/ClickSpark'
+import SmoothScroller from './components/SmoothScroller'
+import ElectricBorder from './components/ElectricBorder'
+
+/* ── ReactBits components (existing) ──────────────── */
+import GradientText from './components/reactbits/GradientText'
+import SpotlightCard from './components/reactbits/SpotlightCard'
+import Magnet from './components/reactbits/Magnet'
+
+/* ── ReactBits components (new) ───────────────────── */
+import SplitText from './components/reactbits/SplitText'
+import DecryptedText from './components/reactbits/DecryptedText'
+import ShinyText from './components/reactbits/ShinyText'
+import CountUp from './components/reactbits/CountUp'
+import ScrollFloat from './components/reactbits/ScrollFloat'
+import Aurora from './components/reactbits/Aurora'
+import Particles from './components/reactbits/Particles'
+import TiltedCard from './components/reactbits/TiltedCard'
+import Dock from './components/reactbits/Dock'
+
+/* ── Data ─────────────────────────────────────────── */
 import { projectsData } from './data/projects'
 
-/* ── lazy blob cursor (client only, no SSR) ─────────────── */
-import dynamic from 'next/dynamic'
+/* ── Lazy loaded heavy components (no SSR) ────────── */
 const BlobCursor = dynamic(() => import('./components/BlobCursor'), { ssr: false })
+const HeroScene = dynamic(() => import('./components/HeroScene'), { ssr: false })
 
-/* ── Skills data (moved from Scene.tsx) ──────────────────── */
+/* ── Data ─────────────────────────────────────────── */
 const skillCategories = [
   { title: 'Frontend & UI', color: '#60a5fa', techs: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Lenis Scroll'] },
   { title: '3D & WebGL', color: '#c084fc', techs: ['Three.js', 'React Three Fiber', 'Drei', 'HDRI / Environment Maps', 'Lottie Animation'] },
@@ -19,340 +42,455 @@ const skillCategories = [
   { title: 'AI & Integrations', color: '#f472b6', techs: ['DeepSeek AI', 'OpenAI API', 'Lark Base API', 'Xero API', 'Linear API', 'Puppeteer'] }
 ]
 
-/* ── Contact data (moved from Scene.tsx) ─────────────────── */
 const contactLinks = [
   { label: 'GitHub', sub: '@gorillaworkout', href: 'https://github.com/gorillaworkout', color: '#a78bfa' },
   { label: 'WhatsApp', sub: '+62 851-3352-4900', href: 'https://wa.me/6285133524900', color: '#22c55e' },
   { label: 'Email', sub: 'darmawanbayu1@gmail.com', href: 'mailto:darmawanbayu1@gmail.com', color: '#f59e0b' },
 ]
 
-/* ── scramble text hook ─────────────────────────────────── */
-function useScramble(text: string, trigger: boolean, speed = 30) {
-  const [display, setDisplay] = useState(text)
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+'
-  useEffect(() => {
-    if (!trigger) { setDisplay(text); return }
-    let revealed = 0
-    const id = setInterval(() => {
-      revealed++
-      setDisplay(text.split('').map((c, i) =>
-        i < revealed ? c : c === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]
-      ).join(''))
-      if (revealed >= text.length) clearInterval(id)
-    }, speed)
-    return () => clearInterval(id)
-  }, [trigger, text, speed])
-  return display
+const stats = [
+  { value: 5, suffix: '+', label: 'Years Experience' },
+  { value: 10, suffix: '+', label: 'Projects Built' },
+  { value: 15, suffix: 'x', label: 'National Champion' },
+]
+
+/* ── Color map ────────────────────────────────────── */
+const colorMap: Record<string, string> = {
+  'text-blue-400': '#60a5fa',
+  'text-emerald-400': '#34d399',
+  'text-pink-400': '#f472b6',
+  'text-amber-400': '#fbbf24',
+  'text-violet-400': '#a78bfa',
+  'text-cyan-400': '#22d3ee',
+  'text-rose-400': '#fb7185',
 }
 
-function useTypingEffect(text: string, trigger: boolean, speed = 60) {
-  const [display, setDisplay] = useState('')
-  useEffect(() => {
-    if (!trigger) { setDisplay(''); return }
-    let i = 0; setDisplay('')
-    const id = setInterval(() => { i++; setDisplay(text.slice(0, i)); if (i >= text.length) clearInterval(id) }, speed)
-    return () => clearInterval(id)
-  }, [trigger, text, speed])
-  return display
-}
+/* ══════════════════════════════════════════════════════
+   MAIN PAGE COMPONENT
+   ══════════════════════════════════════════════════════ */
 
-/* ── Camera transition delay (ms) ──────────────────────── */
-const CAMERA_TRAVEL_MS = 1500
-
-export default function Home() {
-  const [activeMenu, setActiveMenu] = useState('home')
-  const [isPanelOpen, setIsPanelOpen] = useState(false)
-  const [contentVisible, setContentVisible] = useState(false)
-  const [visibleSection, setVisibleSection] = useState<string | null>(null)
-  const [selectedProject, setSelectedProject] = useState<any>(null)
+export default function HomePage() {
   const [mounted, setMounted] = useState(false)
-  const contentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [selectedProject, setSelectedProject] = useState<any>(null)
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
 
   useEffect(() => { setMounted(true) }, [])
 
-  const heroTitle = useScramble('Crafting digital', mounted, 40)
-  const heroSub = useTypingEffect('experiences that last.', mounted, 50)
-
-  /* ── Navigation handler with timing logic ─────────────── */
-  const handleMenuClick = useCallback((menu: string) => {
-    // Clear any pending content timer
-    if (contentTimerRef.current) {
-      clearTimeout(contentTimerRef.current)
-      contentTimerRef.current = null
-    }
-
-    // Instantly hide current content
-    setContentVisible(false)
-
-    if (menu === 'home') {
-      setIsPanelOpen(false)
-      setActiveMenu('home')
-      setVisibleSection(null)
-    } else {
-      setActiveMenu(menu)
-      setIsPanelOpen(true)
-      // Show content AFTER camera arrives
-      contentTimerRef.current = setTimeout(() => {
-        setVisibleSection(menu)
-        setContentVisible(true)
-      }, CAMERA_TRAVEL_MS)
+  const scrollTo = useCallback((id: string) => {
+    const el = sectionRefs.current[id]
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
     }
   }, [])
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (contentTimerRef.current) clearTimeout(contentTimerRef.current)
-    }
-  }, [])
-
-  /* ── Color map for project accent colors ─────────────── */
-  const colorMap: Record<string, string> = {
-    'text-blue-400': '#60a5fa',
-    'text-emerald-400': '#34d399',
-    'text-pink-400': '#f472b6',
-    'text-amber-400': '#fbbf24',
-    'text-violet-400': '#a78bfa',
-    'text-cyan-400': '#22d3ee',
-    'text-rose-400': '#fb7185',
-  }
+  const dockItems = [
+    { icon: <Home size={20} />, label: 'Home', onClick: () => scrollTo('hero') },
+    { icon: <User size={20} />, label: 'About', onClick: () => scrollTo('about') },
+    { icon: <Wrench size={20} />, label: 'Skills', onClick: () => scrollTo('skills') },
+    { icon: <Briefcase size={20} />, label: 'Work', onClick: () => scrollTo('projects') },
+    { icon: <Mail size={20} />, label: 'Contact', onClick: () => scrollTo('contact') },
+  ]
 
   return (
     <ClickSpark sparkColor="#06b6d4" sparkSize={12} sparkRadius={25} sparkCount={10} duration={500} extraScale={1.5}>
-      <main className="relative w-full h-screen overflow-hidden bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-white">
+      <SmoothScroller>
+        <main className="relative w-full min-h-screen bg-[#0a0a1a] text-slate-100 font-sans selection:bg-cyan-500 selection:text-white">
 
-        {/* Blob Cursor — desktop only */}
-        <div className="hidden md:block">
-          {mounted && <BlobCursor
-            fillColor="#06b6d4"
-            trailCount={3}
-            sizes={[40, 90, 55]}
-            innerSizes={[12, 25, 18]}
-            innerColor="rgba(255,255,255,0.6)"
-            opacities={[0.3, 0.2, 0.15]}
-            shadowBlur={0} shadowOffsetX={0} shadowOffsetY={0}
-            zIndex={50}
-          />}
-        </div>
-
-        {/* 3D Scene — only visual atmosphere + camera transitions */}
-        <Scene activeMenu={activeMenu} isPanelOpen={isPanelOpen} />
-
-        {/* Navigation */}
-        <nav className={`fixed top-0 left-0 w-full p-6 md:p-10 z-30 flex justify-between items-center pointer-events-auto transition-all duration-300 ${isPanelOpen ? "text-white mix-blend-difference" : "bg-slate-950/80 backdrop-blur-md text-white border-b border-white/5"}`}>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold tracking-[0.2em] text-slate-400">PORTFOLIO</span>
-            <span className="text-xl md:text-2xl font-black tracking-widest uppercase mt-1">BAYU DARMAWAN</span>
+          {/* Blob Cursor — desktop only */}
+          <div className="hidden md:block">
+            {mounted && <BlobCursor
+              fillColor="#06b6d4"
+              trailCount={3}
+              sizes={[40, 90, 55]}
+              innerSizes={[12, 25, 18]}
+              innerColor="rgba(255,255,255,0.6)"
+              opacities={[0.3, 0.2, 0.15]}
+              shadowBlur={0} shadowOffsetX={0} shadowOffsetY={0}
+              zIndex={50}
+            />}
           </div>
-          <ul className="flex gap-4 md:gap-8 text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium">
-            {[
-              { key: 'home', label: 'Home' },
-              { key: 'about', label: 'About' },
-              { key: 'portfolio', label: 'Work' },
-              { key: 'services', label: 'Skills' },
-              { key: 'contact', label: 'Contact' }
-            ].map(item => (
-              <li key={item.key}>
-                <button
-                  onClick={() => handleMenuClick(item.key)}
-                  className={`hover:text-white transition-all duration-300 relative group cursor-pointer ${activeMenu === item.key ? 'text-white' : 'text-slate-400'}`}
-                >
-                  {item.label}
-                  <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === item.key ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
 
-        {/* Hero Text — Home */}
-        <div className={`fixed bottom-12 left-6 md:left-12 z-10 max-w-3xl pointer-events-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)] transition-all duration-1000 ease-[cubic-bezier(0.76,0,0.24,1)] ${!isPanelOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-cyan-400 font-bold tracking-[0.3em] mb-4 text-xs md:text-sm">FULL-STACK DEVELOPER &amp; CREATIVE TECHNOLOGIST</h2>
-          <h1 className="text-5xl md:text-[5.5rem] font-medium mb-6 text-white leading-[1.1] tracking-tight">
-            <span className="font-mono">{heroTitle}</span>
-            <br/>
-            <span className="italic font-light text-slate-400">{heroSub}<span className="animate-pulse">|</span></span>
-          </h1>
-          <p className="text-slate-300 text-sm md:text-base max-w-xl font-light leading-relaxed border-l border-cyan-400/50 pl-4">
-            Building high-performance web applications, immersive 3D interfaces, and AI-powered tools. From enterprise dashboards to WebGL portfolios.
-          </p>
-          <button onClick={() => handleMenuClick('about')} className="mt-8 px-8 py-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all uppercase tracking-widest text-[10px] font-bold pointer-events-auto cursor-pointer">
-            Explore My World
-          </button>
-        </div>
-
-        {/* Close button — visible when any section is open */}
-        <button
-          onClick={() => handleMenuClick('home')}
-          className={`fixed top-28 right-8 z-30 text-[10px] tracking-[0.2em] text-slate-400 hover:text-white transition-all duration-500 uppercase group flex items-center gap-2 cursor-pointer pointer-events-auto ${isPanelOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        >
-          <span className="w-6 h-px bg-slate-400 group-hover:bg-white group-hover:w-8 transition-all" /> CLOSE
-        </button>
-
-        {/* ═══════════════════════════════════════════════════
-            2D OVERLAY PANELS — appear after camera arrives
-           ═══════════════════════════════════════════════════ */}
-
-        {/* ── ABOUT PANEL ── Left side */}
-        {visibleSection === 'about' && (
-          <div
-            className={`fixed left-8 top-28 bottom-8 z-20 max-w-sm w-full pointer-events-auto overflow-y-auto transition-all duration-700 ease-out ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+          {/* ═══════════════════════════════════════════
+              SECTION 1: HERO
+             ═══════════════════════════════════════════ */}
+          <section
+            ref={el => { sectionRefs.current['hero'] = el }}
+            id="hero"
+            className="relative w-full h-screen flex items-center justify-center overflow-hidden"
           >
-            <div className="bg-black/40 border border-white/10 rounded-2xl p-6 space-y-5">
-              <div className="text-[9px] text-cyan-400 tracking-[0.3em] font-bold">01 // ABOUT ME</div>
-              <h3 className="text-lg font-medium text-white tracking-tight">The Architect.</h3>
-              <div className="space-y-3 text-slate-300 font-light text-sm leading-relaxed">
-                <p>I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer based in <b className="text-white font-medium">Bandung, Indonesia</b>.</p>
-                <p><b className="text-white font-medium">Tech Lead @ Crown Allstar</b> — 15x National Cheerleading Champion.</p>
-                <p className="italic text-cyan-300/80">&quot;Code is poetry, optimization is art.&quot;</p>
+            {/* Aurora Background */}
+            <Aurora />
+
+            {/* 3D Scene Background */}
+            {mounted && <HeroScene />}
+
+            {/* Dark overlay for readability */}
+            <div className="absolute inset-0 bg-[#0a0a1a]/40 z-[1]" />
+
+            {/* Hero Content */}
+            <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+              <div className="mb-6">
+                <ShinyText className="text-cyan-400 font-bold tracking-[0.3em] text-xs md:text-sm uppercase" speed={4}>
+                  Full-Stack Developer &amp; Creative Technologist
+                </ShinyText>
               </div>
 
-              <div className="h-px bg-white/10 my-4" />
+              <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight mb-6">
+                {mounted && (
+                  <DecryptedText
+                    text="BAYU DARMAWAN"
+                    speed={40}
+                    className="text-white font-mono"
+                    trigger="mount"
+                  />
+                )}
+              </h1>
 
-              {/* Quick facts */}
-              {[
-                { label: 'Location', value: 'Bandung, ID' },
-                { label: 'Experience', value: '5+ Years' },
-                { label: 'Specialty', value: 'Full-Stack & WebGL' },
-                { label: 'Also At', value: 'Dupoin (Fintech)' },
-              ].map((fact, index) => (
-                <div
-                  key={fact.label}
-                  className={`flex items-center justify-between py-2 border-b border-white/5 last:border-0 transition-all duration-700 ease-out ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                  style={{ transitionDelay: `${(index + 2) * 100}ms` }}
+              <div className="mb-8">
+                <GradientText
+                  colors={['#06b6d4', '#8b5cf6', '#ec4899', '#06b6d4']}
+                  animationSpeed={6}
+                  className="text-lg md:text-2xl font-light tracking-wide"
                 >
-                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">{fact.label}</span>
-                  <span className="text-xs text-white font-medium">{fact.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                  Crafting digital experiences that last.
+                </GradientText>
+              </div>
 
-        {/* ── PORTFOLIO (WORK) PANEL ── Right side scrollable */}
-        {visibleSection === 'portfolio' && (
-          <div
-            className={`fixed right-8 top-28 bottom-8 z-20 max-w-md w-full pointer-events-auto overflow-y-auto transition-all duration-700 ease-out ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto font-light leading-relaxed mb-10">
+                Building high-performance web applications, immersive 3D interfaces, and AI-powered tools.
+                From enterprise dashboards to WebGL portfolios.
+              </p>
+
+              <button
+                onClick={() => scrollTo('about')}
+                className="px-8 py-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-widest text-[10px] font-bold cursor-pointer"
+              >
+                Explore My World
+              </button>
+            </div>
+
+            {/* Scroll indicator */}
+            <div className="absolute bottom-10 left-1/2 scroll-indicator z-10">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-[10px] text-slate-500 tracking-[0.3em] uppercase">Scroll</span>
+                <ChevronDown size={16} className="text-slate-500 animate-bounce" />
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════════════════════════════════════════
+              SECTION 2: ABOUT
+             ═══════════════════════════════════════════ */}
+          <section
+            ref={el => { sectionRefs.current['about'] = el }}
+            id="about"
+            className="relative w-full min-h-screen flex items-center py-24 md:py-32"
           >
-            <div className="space-y-3">
-              {projectsData.map((project, index) => {
-                const accentColor = colorMap[project.colorClass] || '#22d3ee'
-                return (
-                  <div
-                    key={project.id}
-                    onClick={() => setSelectedProject(project)}
-                    className={`bg-black/40 border border-white/10 rounded-2xl p-4 cursor-pointer transition-all duration-700 ease-out hover:border-white/25 hover:scale-[1.02] hover:bg-black/50 group ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                    style={{
-                      transitionDelay: `${index * 100}ms`,
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${accentColor}15, inset 0 1px 0 ${accentColor}20`
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.boxShadow = 'none'
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-1.5">
-                      <h3 className="text-sm font-semibold text-white leading-tight pr-3 group-hover:text-cyan-300 transition-colors">
-                        {project.title}
-                      </h3>
-                      <span
-                        className="text-[9px] px-2 py-0.5 rounded-full border shrink-0 text-slate-400"
-                        style={{ borderColor: `${accentColor}44` }}
-                      >
-                        {project.year}
-                      </span>
+            <div className="gradient-line w-full absolute top-0" />
+            <div className="max-w-6xl mx-auto px-6 md:px-12 w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+                {/* Left — Text */}
+                <div>
+                  <ScrollFloat>
+                    <span className="text-[10px] text-cyan-400 tracking-[0.3em] font-bold uppercase">01 // About Me</span>
+                  </ScrollFloat>
+
+                  <SplitText
+                    text="The Architect."
+                    className="text-4xl md:text-5xl font-bold text-white tracking-tight mt-4 mb-8"
+                    as="h2"
+                    staggerAmount={0.08}
+                  />
+
+                  <ScrollFloat distance={30}>
+                    <div className="space-y-4 text-slate-300 font-light text-sm md:text-base leading-relaxed">
+                      <p>
+                        I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer
+                        based in <b className="text-white font-medium">Bandung, Indonesia</b>.
+                      </p>
+                      <p>
+                        <b className="text-white font-medium">Tech Lead @ Crown Allstar</b> — a
+                        15x National Cheerleading Champion team. I bridge the gap between
+                        creative design and robust engineering.
+                      </p>
+                      <p className="italic text-cyan-300/80">
+                        &quot;Code is poetry, optimization is art.&quot;
+                      </p>
                     </div>
-                    <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-1.5">{project.shortTech}</p>
-                    <p className="text-xs text-slate-400/80 font-light leading-relaxed line-clamp-2">{project.shortDesc}</p>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+                  </ScrollFloat>
 
-        {/* ── SKILLS PANEL ── Bottom horizontal scroll */}
-        {visibleSection === 'services' && (
-          <div
-            className={`fixed bottom-8 left-8 right-8 z-20 pointer-events-auto transition-all duration-700 ease-out ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-          >
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-              {skillCategories.map((cat, index) => (
-                <div
-                  key={cat.title}
-                  className={`flex-shrink-0 w-56 bg-black/40 border border-white/10 rounded-2xl p-4 transition-all duration-700 ease-out hover:border-white/25 hover:scale-[1.02] ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                  style={{
-                    transitionDelay: `${index * 100}ms`,
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${cat.color}15, inset 0 1px 0 ${cat.color}20`
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = 'none'
-                  }}
-                >
-                  <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] mb-3" style={{ color: cat.color }}>
-                    {cat.title}
-                  </h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {cat.techs.map(tech => (
-                      <span key={tech} className="px-2 py-1 bg-white/5 border border-white/5 text-slate-300 text-[10px] rounded-md">
-                        {tech}
-                      </span>
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-6 mt-10">
+                    {stats.map((stat, i) => (
+                      <ScrollFloat key={stat.label} distance={40}>
+                        <div className="text-center" style={{ animationDelay: `${i * 150}ms` }}>
+                          <div className="text-3xl md:text-4xl font-black text-white">
+                            <CountUp to={stat.value} duration={2.5} suffix={stat.suffix} />
+                          </div>
+                          <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">
+                            {stat.label}
+                          </div>
+                        </div>
+                      </ScrollFloat>
                     ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* ── CONTACT PANEL ── Right side centered */}
-        {visibleSection === 'contact' && (
-          <div
-            className={`fixed right-8 top-1/2 -translate-y-1/2 z-20 max-w-xs w-full pointer-events-auto transition-all duration-700 ease-out ${contentVisible ? 'opacity-100 translate-y-[-50%]' : 'opacity-0 translate-y-[-46%]'}`}
-          >
-            <div className="bg-black/40 border border-white/10 rounded-2xl p-6 space-y-4">
-              <div className="text-[9px] text-amber-400 tracking-[0.3em] font-bold">04 // GET IN TOUCH</div>
-              <h3 className="text-lg font-medium text-white tracking-tight">Let&apos;s Connect.</h3>
-
-              <div className="h-px bg-white/10" />
-
-              {contactLinks.map((contact, index) => (
-                <a
-                  key={contact.label}
-                  href={contact.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`block p-3 rounded-xl border border-white/10 transition-all duration-700 ease-out hover:border-white/25 hover:scale-[1.02] group ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                  style={{
-                    transitionDelay: `${(index + 1) * 100}ms`,
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${contact.color}15, inset 0 1px 0 ${contact.color}20`
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = 'none'
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-medium text-white group-hover:text-amber-300 transition-colors">{contact.label}</div>
-                      <div className="text-[10px] text-slate-400 tracking-wider mt-0.5">{contact.sub}</div>
+                  {/* Quick facts */}
+                  <ScrollFloat distance={30}>
+                    <div className="mt-10 space-y-3">
+                      {[
+                        { label: 'Location', value: 'Bandung, ID' },
+                        { label: 'Specialty', value: 'Full-Stack & WebGL' },
+                        { label: 'Also At', value: 'Dupoin (Fintech)' },
+                      ].map((fact) => (
+                        <div
+                          key={fact.label}
+                          className="flex items-center justify-between py-2 border-b border-white/5"
+                        >
+                          <span className="text-[10px] text-slate-500 uppercase tracking-wider">{fact.label}</span>
+                          <span className="text-xs text-white font-medium">{fact.value}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-slate-500 group-hover:text-white transition-colors text-sm">→</div>
-                  </div>
-                </a>
-              ))}
+                  </ScrollFloat>
+                </div>
+
+                {/* Right — Visual element */}
+                <div className="flex items-center justify-center">
+                  <ScrollFloat distance={60}>
+                    <div className="relative w-64 h-64 md:w-80 md:h-80">
+                      {/* Decorative circles */}
+                      <div className="absolute inset-0 rounded-full border border-cyan-400/20 animate-spin" style={{ animationDuration: '20s' }} />
+                      <div className="absolute inset-4 rounded-full border border-purple-400/20 animate-spin" style={{ animationDuration: '15s', animationDirection: 'reverse' }} />
+                      <div className="absolute inset-8 rounded-full border border-pink-400/20 animate-spin" style={{ animationDuration: '25s' }} />
+                      {/* Center glow */}
+                      <div className="absolute inset-12 rounded-full bg-gradient-to-br from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-xl" />
+                      <div className="absolute inset-16 rounded-full bg-gradient-to-br from-cyan-400/10 to-purple-400/10 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+                        <span className="text-4xl md:text-5xl font-black text-white/80 font-mono">BD</span>
+                      </div>
+                    </div>
+                  </ScrollFloat>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          </section>
 
-        {/* Project Detail Modal */}
-        {selectedProject && <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
+          {/* ═══════════════════════════════════════════
+              SECTION 3: SKILLS
+             ═══════════════════════════════════════════ */}
+          <section
+            ref={el => { sectionRefs.current['skills'] = el }}
+            id="skills"
+            className="relative w-full min-h-screen flex items-center py-24 md:py-32"
+          >
+            <div className="gradient-line w-full absolute top-0" />
 
-      </main>
+            {/* Particles background */}
+            <Particles count={60} color="#8b5cf6" speed={0.2} connectDistance={100} />
+
+            <div className="max-w-6xl mx-auto px-6 md:px-12 w-full relative z-10">
+              <ScrollFloat>
+                <span className="text-[10px] text-purple-400 tracking-[0.3em] font-bold uppercase">02 // Skills</span>
+              </ScrollFloat>
+
+              <SplitText
+                text="Technologies I Work With."
+                className="text-4xl md:text-5xl font-bold text-white tracking-tight mt-4 mb-12"
+                as="h2"
+                staggerAmount={0.06}
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {skillCategories.map((cat, index) => (
+                  <ScrollFloat key={cat.title} distance={40}>
+                    <SpotlightCard
+                      className="h-full bg-slate-900/60 border-white/5 p-6"
+                      spotlightColor={`rgba(${parseInt(cat.color.slice(1, 3), 16)}, ${parseInt(cat.color.slice(3, 5), 16)}, ${parseInt(cat.color.slice(5, 7), 16)}, 0.15)`}
+                    >
+                      <GradientText
+                        colors={[cat.color, '#ffffff', cat.color]}
+                        animationSpeed={4}
+                        className="text-sm font-bold uppercase tracking-[0.15em] mb-4"
+                      >
+                        {cat.title}
+                      </GradientText>
+                      <div className="flex flex-wrap gap-2">
+                        {cat.techs.map(tech => (
+                          <span
+                            key={tech}
+                            className="tech-tag px-3 py-1.5 bg-white/5 border border-white/5 text-slate-300 text-[11px] rounded-lg cursor-default"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </SpotlightCard>
+                  </ScrollFloat>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════════════════════════════════════════
+              SECTION 4: PROJECTS
+             ═══════════════════════════════════════════ */}
+          <section
+            ref={el => { sectionRefs.current['projects'] = el }}
+            id="projects"
+            className="relative w-full py-24 md:py-32"
+          >
+            <div className="gradient-line w-full absolute top-0" />
+
+            <div className="max-w-6xl mx-auto px-6 md:px-12 w-full">
+              <ScrollFloat>
+                <span className="text-[10px] text-emerald-400 tracking-[0.3em] font-bold uppercase">03 // Work</span>
+              </ScrollFloat>
+
+              <SplitText
+                text="Selected Projects."
+                className="text-4xl md:text-5xl font-bold text-white tracking-tight mt-4 mb-12"
+                as="h2"
+                staggerAmount={0.06}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {projectsData.map((project, index) => {
+                  const accentColor = colorMap[project.colorClass] || '#22d3ee'
+                  return (
+                    <ScrollFloat key={project.id} distance={50}>
+                      <TiltedCard maxTilt={8} scale={1.02} className="h-full">
+                        <div
+                          onClick={() => setSelectedProject(project)}
+                          className="h-full bg-slate-900/60 border border-white/10 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:border-white/20 group"
+                          onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLElement).style.boxShadow = `0 0 30px ${accentColor}15, inset 0 1px 0 ${accentColor}20`
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                          }}
+                        >
+                          {/* Header image placeholder */}
+                          <div className="w-full h-32 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 mb-4 flex items-center justify-center overflow-hidden relative">
+                            <span className="text-white/5 font-black text-5xl tracking-tighter uppercase">
+                              {project.title.substring(0, 4)}
+                            </span>
+                            <div
+                              className="absolute bottom-0 left-0 w-full h-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              style={{ background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }}
+                            />
+                          </div>
+
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-base font-semibold text-white leading-tight pr-3 group-hover:text-cyan-300 transition-colors">
+                              {project.title}
+                            </h3>
+                            <span
+                              className="text-[9px] px-2 py-0.5 rounded-full border shrink-0 text-slate-400"
+                              style={{ borderColor: `${accentColor}44` }}
+                            >
+                              {project.year}
+                            </span>
+                          </div>
+
+                          <p className="text-[9px] text-slate-500 uppercase tracking-widest mb-2">{project.shortTech}</p>
+                          <p className="text-xs text-slate-400/80 font-light leading-relaxed line-clamp-2 mb-3">
+                            {project.shortDesc}
+                          </p>
+
+                          <div className="flex items-center gap-2 text-[10px] text-slate-500 group-hover:text-cyan-400 transition-colors">
+                            <span>View Details</span>
+                            <ArrowUpRight size={12} />
+                          </div>
+                        </div>
+                      </TiltedCard>
+                    </ScrollFloat>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════════════════════════════════════════
+              SECTION 5: CONTACT
+             ═══════════════════════════════════════════ */}
+          <section
+            ref={el => { sectionRefs.current['contact'] = el }}
+            id="contact"
+            className="relative w-full min-h-screen flex items-center py-24 md:py-32"
+          >
+            <div className="gradient-line w-full absolute top-0" />
+
+            <div className="max-w-4xl mx-auto px-6 md:px-12 w-full text-center">
+              <ScrollFloat>
+                <span className="text-[10px] text-amber-400 tracking-[0.3em] font-bold uppercase">04 // Contact</span>
+              </ScrollFloat>
+
+              <SplitText
+                text="Let's Connect."
+                className="text-4xl md:text-6xl font-bold text-white tracking-tight mt-4 mb-6"
+                as="h2"
+                staggerAmount={0.1}
+              />
+
+              <ScrollFloat distance={30}>
+                <p className="text-slate-400 text-sm md:text-base max-w-lg mx-auto font-light leading-relaxed mb-12">
+                  Have a project in mind or just want to say hello? I&apos;m always open to discussing
+                  new ideas and opportunities.
+                </p>
+              </ScrollFloat>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+                {contactLinks.map((contact, index) => (
+                  <ScrollFloat key={contact.label} distance={40}>
+                    <Magnet padding={50} magnetStrength={3}>
+                      <a
+                        href={contact.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="contact-card block p-6 rounded-2xl bg-slate-900/60 border border-white/10 group transition-all duration-300 hover:border-white/20"
+                        style={{ '--card-color': contact.color } as React.CSSProperties}
+                      >
+                        <div className="text-base font-semibold text-white mb-1 group-hover:text-amber-300 transition-colors">
+                          {contact.label}
+                        </div>
+                        <div className="text-[11px] text-slate-400 tracking-wider">
+                          {contact.sub}
+                        </div>
+                        <div className="mt-3 text-slate-500 group-hover:text-white transition-colors">
+                          <ArrowUpRight size={16} className="mx-auto" />
+                        </div>
+                      </a>
+                    </Magnet>
+                  </ScrollFloat>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <ScrollFloat distance={20}>
+                <div className="mt-24 pt-8 border-t border-white/5">
+                  <p className="text-[10px] text-slate-600 tracking-[0.2em] uppercase">
+                    © 2026 Bayu Darmawan. Built with Next.js, Three.js &amp; ❤️
+                  </p>
+                </div>
+              </ScrollFloat>
+            </div>
+          </section>
+
+          {/* ═══════════════════════════════════════════
+              FIXED ELEMENTS
+             ═══════════════════════════════════════════ */}
+
+          {/* Dock Navigation */}
+          <Dock items={dockItems} />
+
+          {/* Project Detail Modal */}
+          {selectedProject && <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
+
+          {/* Bottom spacer for dock */}
+          <div className="h-20" />
+        </main>
+      </SmoothScroller>
     </ClickSpark>
   )
 }
