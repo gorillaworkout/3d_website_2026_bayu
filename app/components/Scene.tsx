@@ -1,36 +1,19 @@
 "use client"
 
-import { useRef, useEffect, Suspense, useState, useCallback } from 'react'
+import { useRef, useEffect, Suspense, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, Edges, MeshTransmissionMaterial, Html } from '@react-three/drei'
+import { Float, MeshDistortMaterial, CameraControls, Text, Sparkles, Stars, MeshTransmissionMaterial, Html } from '@react-three/drei'
 import * as THREE from 'three'
 import dynamic from 'next/dynamic'
-import { projectsData } from '../data/projects'
 
 const DotLottieReact = dynamic(
   () => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact),
   { ssr: false }
 )
 
-/* ── Skills data ──────────────────────────────────────────── */
-const skillCategories = [
-  { title: 'Frontend & UI', color: '#60a5fa', techs: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Lenis Scroll'] },
-  { title: '3D & WebGL', color: '#c084fc', techs: ['Three.js', 'React Three Fiber', 'Drei', 'HDRI / Environment Maps', 'Lottie Animation'] },
-  { title: 'Backend & Database', color: '#34d399', techs: ['Node.js', 'Express', 'PostgreSQL', 'Prisma ORM', 'Supabase', 'Firebase / Firestore'] },
-  { title: 'DevOps & Cloud', color: '#fb923c', techs: ['Docker', 'PM2', 'Nginx', 'Oracle Cloud VPS', 'Vercel', 'Cloudflare R2'] },
-  { title: 'AI & Integrations', color: '#f472b6', techs: ['DeepSeek AI', 'OpenAI API', 'Lark Base API', 'Xero API', 'Linear API', 'Puppeteer'] }
-]
-
-/* ── Contact data ─────────────────────────────────────────── */
-const contactLinks = [
-  { label: 'GitHub', sub: '@gorillaworkout', href: 'https://github.com/gorillaworkout', color: '#a78bfa' },
-  { label: 'WhatsApp', sub: '+62 851-3352-4900', href: 'https://wa.me/6285133524900', color: '#22c55e' },
-  { label: 'Email', sub: 'darmawanbayu1@gmail.com', href: 'mailto:darmawanbayu1@gmail.com', color: '#f59e0b' },
-]
-
 const WAYPOINTS = {
-  home: { position: [0, 2, 12], target: [0, 0, 0] },                 
-  about: { position: [0, -26, -20], target: [0, -30, -40] },         
+  home: { position: [0, 2, 12], target: [0, 0, 0] },
+  about: { position: [0, -26, -20], target: [0, -30, -40] },
   portfolio: { position: [40, -56, -20], target: [40, -60, -40] },
   services: { position: [-40, 32, -5], target: [-40, 30, -20] },
   contact: { position: [0, 62, 35], target: [0, 60, 20] },
@@ -44,31 +27,29 @@ const WAYPOINTS = {
 
 function CameraRig({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpen: boolean }) {
   const controlsRef = useRef<any>(null)
-  
+
   useEffect(() => {
     if (controlsRef.current) {
       let targetKey = activeMenu;
       if (isPanelOpen) targetKey = `${activeMenu}_zoom`;
 
       const { position, target } = WAYPOINTS[targetKey as keyof typeof WAYPOINTS] || WAYPOINTS.home
-      
+
       controlsRef.current.smoothTime = isPanelOpen ? 1.5 : 1.2;
-      
+
       controlsRef.current.setLookAt(
-        position[0], position[1], position[2], 
-        target[0], target[1], target[2], 
-        true 
+        position[0], position[1], position[2],
+        target[0], target[1], target[2],
+        true
       )
     }
   }, [activeMenu, isPanelOpen])
 
   return (
-    <CameraControls 
-      ref={controlsRef} smoothTime={1.2} 
-      mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 16 }}
-      touches={{ one: 0, two: 256, three: 0 }}
-      minDistance={4} maxDistance={20}
-      dollySpeed={0.5}
+    <CameraControls
+      ref={controlsRef} smoothTime={1.2}
+      mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 0 }}
+      touches={{ one: 0, two: 0, three: 0 }}
     />
   )
 }
@@ -77,7 +58,7 @@ function InteractiveWorld({ children }: { children: React.ReactNode }) {
   const worldRef = useRef<THREE.Group>(null!)
   useFrame((state) => {
     if (!worldRef.current) return;
-    const targetX = state.pointer.x * 0.5; 
+    const targetX = state.pointer.x * 0.5;
     const targetY = state.pointer.y * 0.5;
     worldRef.current.position.x = THREE.MathUtils.lerp(worldRef.current.position.x, targetX, 0.05);
     worldRef.current.position.y = THREE.MathUtils.lerp(worldRef.current.position.y, targetY, 0.05);
@@ -102,13 +83,13 @@ function GorillaLottie() {
 
 function ThemeController() {
   const { scene, camera } = useThree()
-  
-  const colorSpace = new THREE.Color("#020617") 
-  const colorSky = new THREE.Color("#38bdf8")   
-  const colorSurface = new THREE.Color("#082f49") 
-  const colorOcean = new THREE.Color("#1e3a8a") 
-  const colorAbyss = new THREE.Color("#000000") 
-  
+
+  const colorSpace = new THREE.Color("#020617")
+  const colorSky = new THREE.Color("#38bdf8")
+  const colorSurface = new THREE.Color("#082f49")
+  const colorOcean = new THREE.Color("#1e3a8a")
+  const colorAbyss = new THREE.Color("#000000")
+
   useFrame(() => {
     let targetColor = colorSurface
     const y = camera.position.y
@@ -123,255 +104,21 @@ function ThemeController() {
   return null
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   3D CONTENT COMPONENTS — floating Html elements in the scene
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── Floating Skill Card ─────────────────────────────────── */
-function SkillCard({ category, position }: { category: typeof skillCategories[0], position: [number, number, number] }) {
-  return (
-    <Float speed={1 + Math.random() * 0.5} floatIntensity={0.4} rotationIntensity={0.02}>
-      <Html
-        transform
-        position={position}
-        distanceFactor={10}
-        style={{ pointerEvents: 'none' }}
-      >
-        <div className="w-[180px] p-3 rounded-xl bg-slate-950/70 border border-white/10 select-none">
-          <h4 className="text-[9px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: category.color }}>
-            {category.title}
-          </h4>
-          <div className="flex flex-wrap gap-1">
-            {category.techs.map(tech => (
-              <span key={tech} className="px-1.5 py-0.5 bg-white/5 border border-white/5 text-slate-300 text-[8px] rounded">
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
-      </Html>
-    </Float>
-  )
-}
-
-/* ── Skills Zone (compact grid around center) ─────────────── */
-function SkillsContent() {
-  const positions: [number, number, number][] = [
-    [-4, 3, 2],
-    [4, 3, 0],
-    [-3, -1, 2],
-    [4, -1, 1],
-    [0, 5, -1],
-  ]
-  
-  return (
-    <group position={[-40, 30, -20]}>
-      {skillCategories.map((cat, i) => (
-        <SkillCard key={cat.title} category={cat} position={positions[i]} />
-      ))}
-    </group>
-  )
-}
-
-/* ── Floating Project Card ────────────────────────────────── */
-function ProjectCard({ project, position, onSelect }: { 
-  project: typeof projectsData[0], 
-  position: [number, number, number],
-  onSelect: (project: typeof projectsData[0]) => void
+export default function Scene({ activeMenu, isPanelOpen }: {
+  activeMenu: string,
+  isPanelOpen: boolean
 }) {
-  const colorMap: Record<string, string> = {
-    'text-blue-400': '#60a5fa',
-    'text-emerald-400': '#34d399',
-    'text-pink-400': '#f472b6',
-    'text-amber-400': '#fbbf24',
-    'text-violet-400': '#a78bfa',
-    'text-cyan-400': '#22d3ee',
-    'text-rose-400': '#fb7185',
-  }
-  const accentColor = colorMap[project.colorClass] || '#22d3ee'
-
-  return (
-    <Float speed={0.8 + Math.random() * 0.4} floatIntensity={0.3} rotationIntensity={0.02}>
-      <Html
-        transform
-        position={position}
-        distanceFactor={10}
-        style={{ pointerEvents: 'auto' }}
-      >
-        <div
-          onClick={() => onSelect(project)}
-          className="w-[200px] p-3 rounded-xl bg-slate-950/70 border border-white/10 cursor-pointer select-none transition-all duration-300 hover:bg-slate-900/80 hover:border-white/25 hover:scale-105 group"
-        >
-          <div className="flex items-start justify-between mb-1">
-            <h3 className="text-[11px] font-semibold text-white leading-tight pr-2 group-hover:text-cyan-300 transition-colors">
-              {project.title}
-            </h3>
-            <span className="text-[7px] px-1 py-0.5 rounded-full border text-slate-500 shrink-0" style={{ borderColor: `${accentColor}44` }}>
-              {project.year}
-            </span>
-          </div>
-          <p className="text-[7px] text-slate-500 uppercase tracking-widest mb-1">{project.shortTech}</p>
-          <p className="text-[9px] text-slate-400/80 font-light leading-relaxed line-clamp-2">{project.shortDesc}</p>
-        </div>
-      </Html>
-    </Float>
-  )
-}
-
-/* ── Portfolio Zone (compact arc around center) ───────────── */
-function PortfolioContent({ onProjectSelect }: { onProjectSelect: (project: typeof projectsData[0]) => void }) {
-  // 2 rows of cards, closer together
-  const positions: [number, number, number][] = [
-    [-5, 3, 3],
-    [0, 3, 4],
-    [5, 3, 3],
-    [-5, -1, 3],
-    [0, -1, 4],
-    [5, -1, 3],
-    [-2.5, -4, 3],
-  ]
-  
-  return (
-    <group position={[40, -60, -40]}>
-      {projectsData.map((project, i) => (
-        <ProjectCard
-          key={project.id}
-          project={project}
-          position={positions[i % positions.length]}
-          onSelect={onProjectSelect}
-        />
-      ))}
-    </group>
-  )
-}
-
-/* ── About Zone (floating bio elements) ───────────────────── */
-function AboutContent() {
-  return (
-    <group position={[0, -30, -40]}>
-      {/* Bio card */}
-      <Float speed={1} floatIntensity={0.3} rotationIntensity={0.02}>
-        <Html transform position={[4, 2, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
-          <div className="w-[240px] p-4 rounded-xl bg-slate-950/70 border border-white/10 select-none">
-            <div className="text-[8px] text-cyan-400 tracking-[0.3em] mb-2 font-bold">01 // ABOUT ME</div>
-            <h3 className="text-sm font-medium text-white tracking-tight mb-2">The Architect.</h3>
-            <div className="space-y-1.5 text-slate-300 font-light text-[9px] leading-relaxed">
-              <p>I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer based in <b className="text-white font-medium">Bandung, Indonesia</b>.</p>
-              <p><b className="text-white font-medium">Tech Lead @ Crown Allstar</b> — 15x National Cheerleading Champion.</p>
-              <p className="italic text-cyan-300/80">&quot;Code is poetry, optimization is art.&quot;</p>
-            </div>
-          </div>
-        </Html>
-      </Float>
-
-      {/* Quick facts - well spread */}
-      <Float speed={1.5} floatIntensity={0.4} rotationIntensity={0.03}>
-        <Html transform position={[-4, 2, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
-          <div className="w-[110px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
-            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Location</div>
-            <div className="text-[10px] text-white font-medium">Bandung, ID</div>
-          </div>
-        </Html>
-      </Float>
-
-      <Float speed={1.8} floatIntensity={0.5} rotationIntensity={0.04}>
-        <Html transform position={[-4, -2, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
-          <div className="w-[110px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
-            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Experience</div>
-            <div className="text-[10px] text-white font-medium">5+ Years</div>
-          </div>
-        </Html>
-      </Float>
-
-      <Float speed={1.3} floatIntensity={0.3} rotationIntensity={0.02}>
-        <Html transform position={[5, -1, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
-          <div className="w-[120px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
-            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Specialty</div>
-            <div className="text-[10px] text-white font-medium">Full-Stack & WebGL</div>
-          </div>
-        </Html>
-      </Float>
-
-      <Float speed={1.1} floatIntensity={0.4} rotationIntensity={0.03}>
-        <Html transform position={[3, -3, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
-          <div className="w-[130px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
-            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Also At</div>
-            <div className="text-[10px] text-white font-medium">Dupoin (Fintech)</div>
-          </div>
-        </Html>
-      </Float>
-    </group>
-  )
-}
-
-/* ── Contact Zone (floating links) ────────────────────────── */
-function ContactContent() {
-  const positions: [number, number, number][] = [
-    [-6, 2, 5],
-    [6, 1, 4],
-    [0, -3, 5],
-  ]
-
-  return (
-    <group position={[0, 60, 20]}>
-      {/* Title */}
-      <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.01}>
-        <Html transform position={[0, 4, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
-          <div className="text-center select-none">
-            <div className="text-[8px] text-amber-400 tracking-[0.3em] font-bold mb-1">04 // GET IN TOUCH</div>
-            <h3 className="text-base font-medium text-white tracking-tight">Let&apos;s Connect.</h3>
-          </div>
-        </Html>
-      </Float>
-
-      {contactLinks.map((contact, i) => (
-        <Float key={contact.label} speed={1 + i * 0.2} floatIntensity={0.4} rotationIntensity={0.02}>
-          <Html transform position={positions[i]} distanceFactor={10} style={{ pointerEvents: 'auto' }}>
-            <a
-              href={contact.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-[160px] p-3 rounded-xl bg-slate-950/70 border border-white/10 cursor-pointer select-none transition-all duration-300 hover:bg-slate-900/80 hover:border-white/25 hover:scale-105 group"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] font-medium text-white group-hover:text-amber-300 transition-colors">{contact.label}</div>
-                  <div className="text-[7px] text-slate-400 tracking-widest uppercase mt-0.5">{contact.sub}</div>
-                </div>
-                <div className="text-slate-500 group-hover:text-white transition-colors text-xs">→</div>
-              </div>
-            </a>
-          </Html>
-        </Float>
-      ))}
-    </group>
-  )
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   MAIN SCENE EXPORT
-   ═══════════════════════════════════════════════════════════════ */
-
-export default function Scene({ activeMenu, isPanelOpen, onProjectSelect }: { 
-  activeMenu: string, 
-  isPanelOpen: boolean,
-  onProjectSelect?: (project: any) => void 
-}) {
-  const handleProjectSelect = useCallback((project: any) => {
-    onProjectSelect?.(project)
-  }, [onProjectSelect])
-
   return (
     <div className="fixed inset-0 z-0">
       <Canvas>
         <Suspense fallback={null}>
           <color attach="background" args={['#082f49']} />
           <fog attach="fog" args={['#082f49', 10, 40]} />
-          
+
           <ambientLight intensity={0.6} />
           <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" />
           <directionalLight position={[-10, -20, -10]} intensity={1} color="#38bdf8" />
-          
+
           <CameraRig activeMenu={activeMenu} isPanelOpen={isPanelOpen} />
           <ThemeController />
 
@@ -380,7 +127,7 @@ export default function Scene({ activeMenu, isPanelOpen, onProjectSelect }: {
           </group>
 
           <InteractiveWorld>
-            
+
             {/* --- HOME --- */}
             <group position={[0, 0, 0]}>
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
@@ -394,7 +141,7 @@ export default function Scene({ activeMenu, isPanelOpen, onProjectSelect }: {
               <Sparkles count={500} scale={[60, 2, 60]} position={[0, -1, 0]} size={3} speed={0.2} opacity={0.4} color="#a7f3d0" />
 
               <GorillaLottie />
-              
+
               <Text position={[2, 0, 0]} fontSize={1} color="#e2e8f0" anchorX="left" anchorY="middle" letterSpacing={0.2}>
                 HOME
               </Text>
@@ -416,9 +163,6 @@ export default function Scene({ activeMenu, isPanelOpen, onProjectSelect }: {
               </Text>
             </group>
 
-            {/* --- ABOUT: Floating content --- */}
-            <AboutContent />
-
             {/* --- WORK --- */}
             <group position={[40, -60, -40]}>
               <Sparkles count={1000} scale={[40, 40, 40]} position={[0, 0, 0]} size={2} speed={0.1} opacity={0.8} color="#38bdf8" />
@@ -434,9 +178,6 @@ export default function Scene({ activeMenu, isPanelOpen, onProjectSelect }: {
                 WORK
               </Text>
             </group>
-
-            {/* --- WORK: Floating project cards --- */}
-            <PortfolioContent onProjectSelect={handleProjectSelect} />
 
             {/* --- SKILLS --- */}
             <group position={[-40, 30, -20]}>
@@ -464,9 +205,6 @@ export default function Scene({ activeMenu, isPanelOpen, onProjectSelect }: {
               </Text>
             </group>
 
-            {/* --- SKILLS: Floating skill cards --- */}
-            <SkillsContent />
-
             {/* --- CONTACT --- */}
             <group position={[0, 60, 20]}>
               <group position={[-2, 0, 0]}>
@@ -485,9 +223,6 @@ export default function Scene({ activeMenu, isPanelOpen, onProjectSelect }: {
                 CONTACT
               </Text>
             </group>
-
-            {/* --- CONTACT: Floating links --- */}
-            <ContactContent />
 
           </InteractiveWorld>
         </Suspense>
