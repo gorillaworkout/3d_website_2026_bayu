@@ -54,7 +54,7 @@ export default function Dock({
     <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 ${className}`}>
       <div
         ref={dockRef}
-        className="flex items-end gap-1 px-3 py-2 bg-slate-900/70 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl"
+        className="flex items-end gap-1 px-3 py-2 bg-[#050510]/80 backdrop-blur-2xl border border-white/[0.06] rounded-2xl shadow-2xl"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -72,7 +72,7 @@ export default function Dock({
               title={item.label}
             >
               <div
-                className="flex items-center justify-center rounded-xl bg-slate-800/80 border border-white/5 text-slate-300 hover:text-white transition-colors"
+                className="flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.06] text-slate-300 hover:text-white transition-colors"
                 style={{
                   width: baseSize * scale,
                   height: baseSize * scale,

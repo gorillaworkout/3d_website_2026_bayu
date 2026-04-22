@@ -6,7 +6,7 @@
 }
 
 :root {
-  --background: #0a0a1a;
+  --background: #050510;
   --foreground: #f8fafc;
 }
 
@@ -135,12 +135,13 @@ html.lenis, html.lenis body {
 /* ── Glow hover effect for tech tags ───────────── */
 .tech-tag {
   transition: all 0.3s ease;
+  border-radius: 9999px;
 }
 
 .tech-tag:hover {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.4);
 }
 
 /* ── Section transitions ───────────────────────── */
@@ -185,17 +186,6 @@ html.lenis, html.lenis body {
   box-shadow: 0 10px 40px -10px var(--card-color, rgba(139, 92, 246, 0.3));
 }
 
-/* ── Noise Overlay (subtle) ────────────────────── */
-.noise-overlay::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.015;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-}
-
 /* ── Hide scrollbar on dock area ───────────────── */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -208,6 +198,36 @@ html.lenis, html.lenis body {
 
 /* ── Gradient line separator ───────────────────── */
 .gradient-line {
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
   height: 1px;
+}
+
+/* ── Grid pattern background ───────────────────── */
+.grid-pattern {
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── Blinking cursor ───────────────────────────── */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Animated gradient line ────────────────────── */
+@keyframes gradientSlide {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animated-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #06b6d4, #8b5cf6, transparent);
+  background-size: 200% 100%;
+  animation: gradientSlide 3s linear infinite;
 }

@@ -9,16 +9,18 @@ interface AuroraProps {
 
 export default function Aurora({
   className = '',
-  colors = ['#06b6d4', '#8b5cf6', '#ec4899', '#3b82f6'],
+  colors = ['#0ea5e9', '#7c3aed', '#be185d', '#1e40af'],
 }: AuroraProps) {
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
       {colors.map((color, i) => (
         <div
           key={i}
-          className="aurora-blob absolute rounded-full blur-[120px] opacity-30"
+          className="aurora-blob absolute rounded-full"
           style={{
             background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+            filter: 'blur(160px)',
+            opacity: 0.15,
             width: `${40 + i * 15}%`,
             height: `${40 + i * 15}%`,
             top: `${-10 + i * 20}%`,
