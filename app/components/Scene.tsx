@@ -65,9 +65,10 @@ function CameraRig({ activeMenu, isPanelOpen }: { activeMenu: string, isPanelOpe
   return (
     <CameraControls 
       ref={controlsRef} smoothTime={1.2} 
-      mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 0 }}
-      touches={{ one: 0, two: 0, three: 0 }}
-      minDistance={0} maxDistance={Infinity}
+      mouseButtons={{ left: 0, middle: 0, right: 0, wheel: 16 }}
+      touches={{ one: 0, two: 256, three: 0 }}
+      minDistance={4} maxDistance={20}
+      dollySpeed={0.5}
     />
   )
 }
@@ -153,14 +154,14 @@ function SkillCard({ category, position }: { category: typeof skillCategories[0]
   )
 }
 
-/* ── Skills Zone (well-spaced grid) ───────────────────────── */
+/* ── Skills Zone (compact grid around center) ─────────────── */
 function SkillsContent() {
   const positions: [number, number, number][] = [
-    [-8, 5, 4],
-    [6, 5, -2],
-    [-7, -3, 3],
-    [7, -2, -3],
-    [0, 8, -5],
+    [-4, 3, 2],
+    [4, 3, 0],
+    [-3, -1, 2],
+    [4, -1, 1],
+    [0, 5, -1],
   ]
   
   return (
@@ -217,17 +218,17 @@ function ProjectCard({ project, position, onSelect }: {
   )
 }
 
-/* ── Portfolio Zone (well-spaced project cards) ───────────── */
+/* ── Portfolio Zone (compact arc around center) ───────────── */
 function PortfolioContent({ onProjectSelect }: { onProjectSelect: (project: typeof projectsData[0]) => void }) {
-  // Arrange in a wider arc so cards don't overlap
+  // 2 rows of cards, closer together
   const positions: [number, number, number][] = [
-    [-10, 4, 5],
-    [0, 5, 6],
-    [9, 4, 4],
-    [-9, -3, 4],
-    [0, -4, 5],
-    [9, -3, 3],
-    [-5, 0, -4],
+    [-5, 3, 3],
+    [0, 3, 4],
+    [5, 3, 3],
+    [-5, -1, 3],
+    [0, -1, 4],
+    [5, -1, 3],
+    [-2.5, -4, 3],
   ]
   
   return (
@@ -250,7 +251,7 @@ function AboutContent() {
     <group position={[0, -30, -40]}>
       {/* Bio card */}
       <Float speed={1} floatIntensity={0.3} rotationIntensity={0.02}>
-        <Html transform position={[5, 3, 5]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+        <Html transform position={[4, 2, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
           <div className="w-[240px] p-4 rounded-xl bg-slate-950/70 border border-white/10 select-none">
             <div className="text-[8px] text-cyan-400 tracking-[0.3em] mb-2 font-bold">01 // ABOUT ME</div>
             <h3 className="text-sm font-medium text-white tracking-tight mb-2">The Architect.</h3>
@@ -265,7 +266,7 @@ function AboutContent() {
 
       {/* Quick facts - well spread */}
       <Float speed={1.5} floatIntensity={0.4} rotationIntensity={0.03}>
-        <Html transform position={[-7, 3, 4]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+        <Html transform position={[-4, 2, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
           <div className="w-[110px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
             <div className="text-[7px] text-slate-500 uppercase tracking-wider">Location</div>
             <div className="text-[10px] text-white font-medium">Bandung, ID</div>
@@ -274,7 +275,7 @@ function AboutContent() {
       </Float>
 
       <Float speed={1.8} floatIntensity={0.5} rotationIntensity={0.04}>
-        <Html transform position={[-6, -3, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+        <Html transform position={[-4, -2, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
           <div className="w-[110px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
             <div className="text-[7px] text-slate-500 uppercase tracking-wider">Experience</div>
             <div className="text-[10px] text-white font-medium">5+ Years</div>
@@ -283,7 +284,7 @@ function AboutContent() {
       </Float>
 
       <Float speed={1.3} floatIntensity={0.3} rotationIntensity={0.02}>
-        <Html transform position={[7, -2, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+        <Html transform position={[5, -1, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
           <div className="w-[120px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
             <div className="text-[7px] text-slate-500 uppercase tracking-wider">Specialty</div>
             <div className="text-[10px] text-white font-medium">Full-Stack & WebGL</div>
@@ -292,7 +293,7 @@ function AboutContent() {
       </Float>
 
       <Float speed={1.1} floatIntensity={0.4} rotationIntensity={0.03}>
-        <Html transform position={[4, -5, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+        <Html transform position={[3, -3, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
           <div className="w-[130px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
             <div className="text-[7px] text-slate-500 uppercase tracking-wider">Also At</div>
             <div className="text-[10px] text-white font-medium">Dupoin (Fintech)</div>
@@ -315,7 +316,7 @@ function ContactContent() {
     <group position={[0, 60, 20]}>
       {/* Title */}
       <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.01}>
-        <Html transform position={[0, 5, 4]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+        <Html transform position={[0, 4, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
           <div className="text-center select-none">
             <div className="text-[8px] text-amber-400 tracking-[0.3em] font-bold mb-1">04 // GET IN TOUCH</div>
             <h3 className="text-base font-medium text-white tracking-tight">Let&apos;s Connect.</h3>
