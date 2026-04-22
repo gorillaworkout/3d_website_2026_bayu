@@ -1,10 +1,14 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Scene from './components/Scene'
 import ProjectModal from './components/ProjectModal'
 import ElectricBorder from './components/ElectricBorder'
 import ClickSpark from './components/ClickSpark'
+import SpotlightCard from './components/reactbits/SpotlightCard'
+import AnimatedContent from './components/reactbits/AnimatedContent'
+import GradientText from './components/reactbits/GradientText'
+import Magnet from './components/reactbits/Magnet'
 import { projectsData } from './data/projects'
 
 /* ── lazy blob cursor (client only, no SSR) ─────────────── */
@@ -42,38 +46,71 @@ function useTypingEffect(text: string, trigger: boolean, speed = 60) {
 }
 
 /* ── color helper ───────────────────────────────────────── */
-function getProjectColor(colorClass: string): string {
-  if (colorClass.includes('blue')) return '#3b82f6'
-  if (colorClass.includes('emerald')) return '#10b981'
-  if (colorClass.includes('pink')) return '#ec4899'
-  if (colorClass.includes('amber')) return '#f59e0b'
-  if (colorClass.includes('violet')) return '#8b5cf6'
-  if (colorClass.includes('cyan')) return '#06b6d4'
-  if (colorClass.includes('rose')) return '#f43f5e'
-  return '#06b6d4'
+function getSpotlightColor(colorClass: string): `rgba(${number}, ${number}, ${number}, ${number})` {
+  if (colorClass.includes('blue')) return 'rgba(59, 130, 246, 0.15)'
+  if (colorClass.includes('emerald')) return 'rgba(16, 185, 129, 0.15)'
+  if (colorClass.includes('pink')) return 'rgba(236, 72, 153, 0.15)'
+  if (colorClass.includes('amber')) return 'rgba(245, 158, 11, 0.15)'
+  if (colorClass.includes('violet')) return 'rgba(139, 92, 246, 0.15)'
+  if (colorClass.includes('cyan')) return 'rgba(6, 182, 212, 0.15)'
+  if (colorClass.includes('rose')) return 'rgba(244, 63, 94, 0.15)'
+  return 'rgba(6, 182, 212, 0.15)'
 }
+
+/* ── Camera transition delay (ms) ──────────────────────── */
+const CAMERA_TRAVEL_MS = 1600
 
 export default function Home() {
   const [activeMenu, setActiveMenu] = useState('home')
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [contentVisible, setContentVisible] = useState(false)
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [mounted, setMounted] = useState(false)
-  const [hoveredProject, setHoveredProject] = useState<string | null>(null)
+  const contentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => { setMounted(true) }, [])
 
   const heroTitle = useScramble('Crafting digital', mounted, 40)
   const heroSub = useTypingEffect('experiences that last.', mounted, 50)
 
-  const handleMenuClick = (menu: string) => {
-    if (menu === 'home') {
-      setIsPanelOpen(false)
-      setTimeout(() => setActiveMenu('home'), 200)
-    } else {
-      setActiveMenu(menu)
-      setIsPanelOpen(true)
+  /* ── Navigation handler with timing logic ─────────────── */
+  const handleMenuClick = useCallback((menu: string) => {
+    // Clear any pending content timer
+    if (contentTimerRef.current) {
+      clearTimeout(contentTimerRef.current)
+      contentTimerRef.current = null
     }
-  }
+
+    if (menu === 'home') {
+      // Fade out content FIRST, then move camera
+      setContentVisible(false)
+      setTimeout(() => {
+        setIsPanelOpen(false)
+        setActiveMenu('home')
+      }, 400) // wait for content fade-out
+    } else {
+      // 1. Fade out any existing content immediately
+      setContentVisible(false)
+      
+      // 2. Move camera immediately
+      setTimeout(() => {
+        setActiveMenu(menu)
+        setIsPanelOpen(true)
+      }, contentVisible ? 400 : 0) // if content was visible, wait for fade-out
+
+      // 3. Show content AFTER camera arrives
+      contentTimerRef.current = setTimeout(() => {
+        setContentVisible(true)
+      }, (contentVisible ? 400 : 0) + CAMERA_TRAVEL_MS)
+    }
+  }, [contentVisible])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (contentTimerRef.current) clearTimeout(contentTimerRef.current)
+    }
+  }, [])
 
   return (
     <ClickSpark sparkColor="#06b6d4" sparkSize={12} sparkRadius={25} sparkCount={10} duration={500} extraScale={1.5}>
@@ -111,13 +148,15 @@ export default function Home() {
               { key: 'contact', label: 'Contact' }
             ].map(item => (
               <li key={item.key}>
-                <button 
-                  onClick={() => handleMenuClick(item.key)} 
-                  className={`hover:text-white transition-all duration-300 relative group ${activeMenu === item.key ? 'text-white' : 'text-slate-400'}`}
-                >
-                  {item.label}
-                  <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === item.key ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
-                </button>
+                <Magnet padding={40} magnetStrength={3}>
+                  <button 
+                    onClick={() => handleMenuClick(item.key)} 
+                    className={`hover:text-white transition-all duration-300 relative group cursor-pointer ${activeMenu === item.key ? 'text-white' : 'text-slate-400'}`}
+                  >
+                    {item.label}
+                    <span className={`absolute -bottom-2 left-0 w-full h-0.5 bg-white transition-transform origin-left ${activeMenu === item.key ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                  </button>
+                </Magnet>
               </li>
             ))}
           </ul>
@@ -134,107 +173,144 @@ export default function Home() {
           <p className="text-slate-300 text-sm md:text-base max-w-xl font-light leading-relaxed border-l border-cyan-400/50 pl-4">
             Building high-performance web applications, immersive 3D interfaces, and AI-powered tools. From enterprise dashboards to WebGL portfolios.
           </p>
-          <button onClick={() => handleMenuClick('about')} className="mt-8 px-8 py-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all uppercase tracking-widest text-[10px] font-bold pointer-events-auto cursor-pointer">
-            Explore My World
-          </button>
+          <Magnet padding={60} magnetStrength={4}>
+            <button onClick={() => handleMenuClick('about')} className="mt-8 px-8 py-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all uppercase tracking-widest text-[10px] font-bold pointer-events-auto cursor-pointer">
+              Explore My World
+            </button>
+          </Magnet>
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            MAIN CONTENT OVERLAY — appears on top of 3D scene
-            Each section fades in when its menu is active
+            CONTENT PANELS — elegant side panels, not fullscreen
+            Each section waits for camera transition to complete
         ═══════════════════════════════════════════════════════ */}
 
-        {/* ── PORTFOLIO: Electric Border Cards in Main View ── */}
-        <div className={`fixed inset-0 z-20 pointer-events-none transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${activeMenu === 'portfolio' && isPanelOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-          <div className="w-full h-full flex items-center justify-center p-6 md:p-16">
-            <div className="w-full max-w-6xl max-h-[80vh] overflow-y-auto pointer-events-auto scrollbar-thin scrollbar-thumb-white/10">
-              <div className="text-[10px] text-blue-400 tracking-[0.3em] mb-2 font-bold">02 // SELECTED WORKS</div>
-              <h2 className="text-3xl md:text-5xl font-medium text-white mb-8 tracking-tight drop-shadow-lg">
-                Project <span className="italic font-light text-slate-400">Archive</span>.
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {projectsData.map((project) => (
-                  <ElectricBorder
-                    key={project.id}
-                    color={getProjectColor(project.colorClass)}
-                    speed={hoveredProject === project.id ? 3 : 0.5}
-                    chaos={hoveredProject === project.id ? 0.18 : 0.06}
-                    borderRadius={20}
-                    className="transition-all duration-300"
+        {/* ── PORTFOLIO: Spotlight Cards in elegant list ── */}
+        {activeMenu === 'portfolio' && (
+          <div className="fixed inset-0 z-20 pointer-events-none">
+            <div className="w-full h-full flex items-center justify-end p-6 md:p-12">
+              <AnimatedContent
+                show={contentVisible}
+                distance={80}
+                direction="horizontal"
+                reverse
+                duration={0.9}
+                delay={0}
+                className="w-full max-w-xl max-h-[80vh] overflow-y-auto pointer-events-auto scrollbar-thin scrollbar-thumb-white/10 pr-2"
+              >
+                <div className="mb-6">
+                  <div className="text-[10px] text-blue-400 tracking-[0.3em] mb-3 font-bold">02 // SELECTED WORKS</div>
+                  <GradientText
+                    colors={['#60a5fa', '#38bdf8', '#818cf8', '#60a5fa']}
+                    animationSpeed={6}
+                    className="!mx-0 !justify-start"
                   >
-                    <div 
-                      className="p-6 bg-slate-950/70 backdrop-blur-md rounded-[20px] cursor-pointer group min-h-[180px] flex flex-col justify-between"
-                      onClick={() => setSelectedProject(project)}
-                      onMouseEnter={() => setHoveredProject(project.id)}
-                      onMouseLeave={() => setHoveredProject(null)}
+                    <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
+                      Project Archive.
+                    </h2>
+                  </GradientText>
+                </div>
+                
+                <div className="space-y-4">
+                  {projectsData.map((project, index) => (
+                    <SpotlightCard
+                      key={project.id}
+                      spotlightColor={getSpotlightColor(project.colorClass)}
+                      className="!p-0 !rounded-2xl border-white/[0.06] bg-slate-900/60 backdrop-blur-md cursor-pointer group transition-all duration-300 hover:border-white/15 hover:scale-[1.01]"
                     >
-                      <div>
-                        <div className="flex justify-between items-start mb-3">
-                          <h3 className={`text-xl font-semibold text-white transition-colors duration-300 ${hoveredProject === project.id ? project.colorClass : ''}`}>
+                      <div 
+                        className="p-5"
+                        onClick={() => setSelectedProject(project)}
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className={`text-base font-semibold text-white group-hover:${project.colorClass} transition-colors duration-300`}>
                             {project.title}
                           </h3>
-                          <span className={`text-[10px] px-2 py-1 rounded-full border shrink-0 ml-3 transition-colors duration-300 ${
-                            hoveredProject === project.id 
-                              ? 'border-white/30 text-white' 
-                              : 'border-white/10 text-slate-500'
-                          }`}>{project.year}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-slate-500 shrink-0 ml-3">
+                            {project.year}
+                          </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-3">{project.shortTech}</p>
-                        <p className="text-xs text-slate-400 font-light leading-relaxed line-clamp-3">{project.shortDesc}</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-2">{project.shortTech}</p>
+                        <p className="text-xs text-slate-400/80 font-light leading-relaxed line-clamp-2">{project.shortDesc}</p>
+                        <div className="mt-3 text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 text-slate-600 group-hover:text-cyan-400 transition-all duration-300">
+                          <span className="h-px w-4 bg-slate-600 group-hover:w-8 group-hover:bg-cyan-400 transition-all duration-300" />
+                          View Details
+                        </div>
                       </div>
-                      <div className={`mt-4 text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 transition-all duration-300 ${
-                        hoveredProject === project.id ? 'text-cyan-400 translate-x-2' : 'text-slate-600'
-                      }`}>
-                        <span className={`h-px transition-all duration-300 ${hoveredProject === project.id ? 'w-8 bg-cyan-400' : 'w-4 bg-slate-600'}`} />
-                        View Details
-                      </div>
-                    </div>
-                  </ElectricBorder>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── ABOUT: Main overlay ── */}
-        <div className={`fixed inset-0 z-20 pointer-events-none transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${activeMenu === 'about' && isPanelOpen ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="w-full h-full flex items-center justify-center p-6 md:p-16">
-            <div className="w-full max-w-3xl pointer-events-auto">
-              <ElectricBorder color="#06b6d4" speed={0.5} chaos={0.06} borderRadius={24}>
-                <div className="p-8 md:p-12 bg-slate-950/80 backdrop-blur-xl rounded-3xl">
-                  <div className="text-[10px] text-cyan-400 tracking-[0.3em] mb-4 font-bold">01 // ABOUT ME</div>
-                  <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">The <span className="italic font-light text-slate-400">Architect</span>.</h2>
-                  <div className="space-y-5 text-slate-300 font-light text-sm leading-relaxed">
-                    <p>I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer and Creative Technologist based in <b className="text-white font-medium">Bandung, Indonesia</b>. I specialize in building end-to-end web applications — from database architecture to immersive 3D front-end experiences.</p>
-                    <p>Currently serving as the <b className="text-white font-medium">Technology Lead for Crown Allstar</b> (15x Indonesian National Cheerleading Champion, ICU World Cup representative), where I manage all digital platforms, data systems, and AI-powered tools.</p>
-                    <p>I also work at <b className="text-white font-medium">Dupoin</b>, a financial services company, where I build internal enterprise dashboards integrating Lark HR, PostgreSQL, and Xero accounting APIs.</p>
-                    <p>My philosophy: <span className="italic text-cyan-300">&quot;Code is poetry, optimization is art, and every interface should feel alive.&quot;</span></p>
-                  </div>
-                  <div className="mt-10 pt-6 border-t border-white/10">
-                    <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Quick Facts</h3>
-                    <div className="grid grid-cols-2 gap-4 text-xs">
-                      <div><span className="text-slate-500">Location</span><br/><span className="text-white">Bandung, Indonesia</span></div>
-                      <div><span className="text-slate-500">Experience</span><br/><span className="text-white">5+ Years</span></div>
-                      <div><span className="text-slate-500">Specialty</span><br/><span className="text-white">Full-Stack &amp; WebGL</span></div>
-                      <div><span className="text-slate-500">Current Role</span><br/><span className="text-white">Tech Lead @ Crown Allstar</span></div>
-                    </div>
-                  </div>
+                    </SpotlightCard>
+                  ))}
                 </div>
-              </ElectricBorder>
+              </AnimatedContent>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* ── SKILLS: Main overlay ── */}
-        <div className={`fixed inset-0 z-20 pointer-events-none transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${activeMenu === 'services' && isPanelOpen ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="w-full h-full flex items-center justify-center p-6 md:p-16">
-            <div className="w-full max-w-4xl max-h-[80vh] overflow-y-auto pointer-events-auto">
-              <ElectricBorder color="#8b5cf6" speed={0.5} chaos={0.06} borderRadius={24}>
-                <div className="p-8 md:p-12 bg-slate-950/80 backdrop-blur-xl rounded-3xl">
+        {/* ── ABOUT: Elegant side panel with ElectricBorder ── */}
+        {activeMenu === 'about' && (
+          <div className="fixed inset-0 z-20 pointer-events-none">
+            <div className="w-full h-full flex items-center justify-center p-6 md:p-16">
+              <AnimatedContent
+                show={contentVisible}
+                distance={100}
+                duration={1}
+                delay={0}
+                className="w-full max-w-3xl pointer-events-auto"
+              >
+                <ElectricBorder color="#06b6d4" speed={0.5} chaos={0.06} borderRadius={24}>
+                  <div className="p-8 md:p-12 bg-slate-950/80 backdrop-blur-xl rounded-3xl">
+                    <div className="text-[10px] text-cyan-400 tracking-[0.3em] mb-4 font-bold">01 // ABOUT ME</div>
+                    <GradientText
+                      colors={['#22d3ee', '#06b6d4', '#67e8f9', '#22d3ee']}
+                      animationSpeed={5}
+                      className="!mx-0 !justify-start mb-8"
+                    >
+                      <h2 className="text-4xl font-medium tracking-tight">The Architect.</h2>
+                    </GradientText>
+                    <div className="space-y-5 text-slate-300 font-light text-sm leading-relaxed">
+                      <p>I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer and Creative Technologist based in <b className="text-white font-medium">Bandung, Indonesia</b>. I specialize in building end-to-end web applications — from database architecture to immersive 3D front-end experiences.</p>
+                      <p>Currently serving as the <b className="text-white font-medium">Technology Lead for Crown Allstar</b> (15x Indonesian National Cheerleading Champion, ICU World Cup representative), where I manage all digital platforms, data systems, and AI-powered tools.</p>
+                      <p>I also work at <b className="text-white font-medium">Dupoin</b>, a financial services company, where I build internal enterprise dashboards integrating Lark HR, PostgreSQL, and Xero accounting APIs.</p>
+                      <p>My philosophy: <span className="italic text-cyan-300">&quot;Code is poetry, optimization is art, and every interface should feel alive.&quot;</span></p>
+                    </div>
+                    <div className="mt-10 pt-6 border-t border-white/10">
+                      <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">Quick Facts</h3>
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div><span className="text-slate-500">Location</span><br/><span className="text-white">Bandung, Indonesia</span></div>
+                        <div><span className="text-slate-500">Experience</span><br/><span className="text-white">5+ Years</span></div>
+                        <div><span className="text-slate-500">Specialty</span><br/><span className="text-white">Full-Stack &amp; WebGL</span></div>
+                        <div><span className="text-slate-500">Current Role</span><br/><span className="text-white">Tech Lead @ Crown Allstar</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </ElectricBorder>
+              </AnimatedContent>
+            </div>
+          </div>
+        )}
+
+        {/* ── SKILLS: Clean panel ── */}
+        {activeMenu === 'services' && (
+          <div className="fixed inset-0 z-20 pointer-events-none">
+            <div className="w-full h-full flex items-center justify-start p-6 md:p-12">
+              <AnimatedContent
+                show={contentVisible}
+                distance={80}
+                direction="horizontal"
+                duration={0.9}
+                delay={0}
+                className="w-full max-w-2xl max-h-[80vh] overflow-y-auto pointer-events-auto scrollbar-thin scrollbar-thumb-white/10 ml-0 md:ml-8"
+              >
+                <div className="p-8 md:p-10 bg-slate-950/70 backdrop-blur-xl rounded-3xl border border-white/[0.06]">
                   <div className="text-[10px] text-indigo-400 tracking-[0.3em] mb-4 font-bold">03 // CAPABILITIES</div>
-                  <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Technical <span className="italic font-light text-slate-400">Stack</span>.</h2>
-                  <div className="space-y-8">
+                  <GradientText
+                    colors={['#a78bfa', '#818cf8', '#c4b5fd', '#a78bfa']}
+                    animationSpeed={5}
+                    className="!mx-0 !justify-start mb-8"
+                  >
+                    <h2 className="text-4xl font-medium tracking-tight">Technical Stack.</h2>
+                  </GradientText>
+                  <div className="space-y-7">
                     {[
                       { title: 'Frontend & UI', techs: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Lenis Scroll'] },
                       { title: '3D & WebGL', techs: ['Three.js', 'React Three Fiber', 'Drei', 'HDRI / Environment Maps', 'Lottie Animation'] },
@@ -243,52 +319,71 @@ export default function Home() {
                       { title: 'AI & Integrations', techs: ['DeepSeek AI', 'OpenAI API', 'Lark Base API', 'Xero API', 'Linear API', 'Puppeteer'] }
                     ].map(category => (
                       <div key={category.title}>
-                        <h3 className="text-[10px] text-white/50 mb-4 uppercase tracking-[0.2em]">{category.title}</h3>
+                        <h3 className="text-[10px] text-white/50 mb-3 uppercase tracking-[0.2em]">{category.title}</h3>
                         <div className="flex flex-wrap gap-2">
                           {category.techs.map(tech => (
-                            <span key={tech} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default rounded-lg">{tech}</span>
+                            <span key={tech} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 text-xs transition-colors cursor-default rounded-lg">
+                              {tech}
+                            </span>
                           ))}
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              </ElectricBorder>
+              </AnimatedContent>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* ── CONTACT: Main overlay ── */}
-        <div className={`fixed inset-0 z-20 pointer-events-none transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${activeMenu === 'contact' && isPanelOpen ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="w-full h-full flex items-center justify-center p-6 md:p-16">
-            <div className="w-full max-w-2xl pointer-events-auto">
-              <ElectricBorder color="#f59e0b" speed={0.5} chaos={0.06} borderRadius={24}>
-                <div className="p-8 md:p-12 bg-slate-950/80 backdrop-blur-xl rounded-3xl">
-                  <div className="text-[10px] text-amber-400 tracking-[0.3em] mb-4 font-bold">04 // GET IN TOUCH</div>
-                  <h2 className="text-4xl font-medium text-white mb-8 tracking-tight">Let&apos;s <span className="italic font-light text-slate-400">Connect</span>.</h2>
-                  <p className="text-slate-300 font-light text-sm leading-relaxed mb-10">
-                    Interested in working together? Whether it&apos;s a complex enterprise dashboard, an immersive 3D experience, or AI-powered automation — I&apos;m ready to build it.
-                  </p>
-                  <div className="space-y-4">
-                    {[
-                      { label: 'GitHub', sub: '@gorillaworkout', href: 'https://github.com/gorillaworkout' },
-                      { label: 'WhatsApp', sub: '+62 851-3352-4900', href: 'https://wa.me/6285133524900' },
-                      { label: 'Email', sub: 'darmawanbayu1@gmail.com', href: 'mailto:darmawanbayu1@gmail.com' },
-                    ].map(c => (
-                      <a key={c.label} href={c.href} target="_blank" className="flex items-center justify-between p-5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-colors group">
-                        <div>
-                          <div className="text-sm font-medium text-white">{c.label}</div>
-                          <div className="text-[10px] text-slate-400 tracking-widest uppercase mt-1">{c.sub}</div>
-                        </div>
-                        <div className="text-slate-500 group-hover:text-white transition-colors transform group-hover:translate-x-1">→</div>
-                      </a>
-                    ))}
+        {/* ── CONTACT: Centered panel with ElectricBorder ── */}
+        {activeMenu === 'contact' && (
+          <div className="fixed inset-0 z-20 pointer-events-none">
+            <div className="w-full h-full flex items-center justify-center p-6 md:p-16">
+              <AnimatedContent
+                show={contentVisible}
+                distance={80}
+                duration={0.9}
+                delay={0}
+                reverse
+                className="w-full max-w-lg pointer-events-auto"
+              >
+                <ElectricBorder color="#f59e0b" speed={0.5} chaos={0.06} borderRadius={24}>
+                  <div className="p-8 md:p-10 bg-slate-950/80 backdrop-blur-xl rounded-3xl">
+                    <div className="text-[10px] text-amber-400 tracking-[0.3em] mb-4 font-bold">04 // GET IN TOUCH</div>
+                    <GradientText
+                      colors={['#fbbf24', '#f59e0b', '#fcd34d', '#fbbf24']}
+                      animationSpeed={5}
+                      className="!mx-0 !justify-start mb-6"
+                    >
+                      <h2 className="text-4xl font-medium tracking-tight">Let&apos;s Connect.</h2>
+                    </GradientText>
+                    <p className="text-slate-300 font-light text-sm leading-relaxed mb-8">
+                      Interested in working together? Whether it&apos;s a complex enterprise dashboard, an immersive 3D experience, or AI-powered automation — I&apos;m ready to build it.
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        { label: 'GitHub', sub: '@gorillaworkout', href: 'https://github.com/gorillaworkout' },
+                        { label: 'WhatsApp', sub: '+62 851-3352-4900', href: 'https://wa.me/6285133524900' },
+                        { label: 'Email', sub: 'darmawanbayu1@gmail.com', href: 'mailto:darmawanbayu1@gmail.com' },
+                      ].map(c => (
+                        <Magnet key={c.label} padding={30} magnetStrength={5}>
+                          <a href={c.href} target="_blank" className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all group w-full">
+                            <div>
+                              <div className="text-sm font-medium text-white">{c.label}</div>
+                              <div className="text-[10px] text-slate-400 tracking-widest uppercase mt-0.5">{c.sub}</div>
+                            </div>
+                            <div className="text-slate-500 group-hover:text-white transition-colors transform group-hover:translate-x-1">→</div>
+                          </a>
+                        </Magnet>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </ElectricBorder>
+                </ElectricBorder>
+              </AnimatedContent>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Close button — visible when any section is open */}
         <button 
