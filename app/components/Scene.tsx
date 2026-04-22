@@ -129,20 +129,20 @@ function ThemeController() {
 /* ── Floating Skill Card ─────────────────────────────────── */
 function SkillCard({ category, position }: { category: typeof skillCategories[0], position: [number, number, number] }) {
   return (
-    <Float speed={1.5 + Math.random()} floatIntensity={0.8} rotationIntensity={0.1}>
+    <Float speed={1 + Math.random() * 0.5} floatIntensity={0.4} rotationIntensity={0.02}>
       <Html
         transform
         position={position}
-        distanceFactor={12}
+        distanceFactor={10}
         style={{ pointerEvents: 'none' }}
       >
-        <div className="w-[200px] p-3 rounded-xl bg-slate-950/50 backdrop-blur-sm border border-white/10 select-none">
-          <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: category.color }}>
+        <div className="w-[180px] p-3 rounded-xl bg-slate-950/70 border border-white/10 select-none">
+          <h4 className="text-[9px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: category.color }}>
             {category.title}
           </h4>
           <div className="flex flex-wrap gap-1">
             {category.techs.map(tech => (
-              <span key={tech} className="px-2 py-0.5 bg-white/5 border border-white/5 text-slate-300 text-[9px] rounded-md">
+              <span key={tech} className="px-1.5 py-0.5 bg-white/5 border border-white/5 text-slate-300 text-[8px] rounded">
                 {tech}
               </span>
             ))}
@@ -153,14 +153,14 @@ function SkillCard({ category, position }: { category: typeof skillCategories[0]
   )
 }
 
-/* ── Skills Zone (scattered cards) ────────────────────────── */
+/* ── Skills Zone (well-spaced grid) ───────────────────────── */
 function SkillsContent() {
   const positions: [number, number, number][] = [
-    [-4, 3, 2],
-    [3, 2, -3],
-    [-3, -1, 3],
-    [4, 3, -1],
-    [-1, 4, -4],
+    [-8, 5, 4],
+    [6, 5, -2],
+    [-7, -3, 3],
+    [7, -2, -3],
+    [0, 8, -5],
   ]
   
   return (
@@ -190,47 +190,44 @@ function ProjectCard({ project, position, onSelect }: {
   const accentColor = colorMap[project.colorClass] || '#22d3ee'
 
   return (
-    <Float speed={1.2 + Math.random() * 0.8} floatIntensity={0.6} rotationIntensity={0.05}>
+    <Float speed={0.8 + Math.random() * 0.4} floatIntensity={0.3} rotationIntensity={0.02}>
       <Html
         transform
         position={position}
-        distanceFactor={14}
+        distanceFactor={10}
         style={{ pointerEvents: 'auto' }}
       >
         <div
           onClick={() => onSelect(project)}
-          className="w-[220px] p-4 rounded-xl bg-slate-950/50 backdrop-blur-sm border border-white/10 cursor-pointer select-none transition-all duration-300 hover:bg-slate-900/70 hover:border-white/20 hover:scale-105 group"
+          className="w-[200px] p-3 rounded-xl bg-slate-950/70 border border-white/10 cursor-pointer select-none transition-all duration-300 hover:bg-slate-900/80 hover:border-white/25 hover:scale-105 group"
         >
-          <div className="flex items-start justify-between mb-1.5">
-            <h3 className="text-xs font-semibold text-white leading-tight pr-2 group-hover:text-cyan-300 transition-colors">
+          <div className="flex items-start justify-between mb-1">
+            <h3 className="text-[11px] font-semibold text-white leading-tight pr-2 group-hover:text-cyan-300 transition-colors">
               {project.title}
             </h3>
-            <span className="text-[8px] px-1.5 py-0.5 rounded-full border border-white/10 text-slate-500 shrink-0" style={{ borderColor: `${accentColor}33` }}>
+            <span className="text-[7px] px-1 py-0.5 rounded-full border text-slate-500 shrink-0" style={{ borderColor: `${accentColor}44` }}>
               {project.year}
             </span>
           </div>
-          <p className="text-[8px] text-slate-500 uppercase tracking-widest mb-1.5">{project.shortTech}</p>
-          <p className="text-[10px] text-slate-400/80 font-light leading-relaxed line-clamp-2">{project.shortDesc}</p>
-          <div className="mt-2 text-[8px] uppercase tracking-widest font-bold flex items-center gap-1.5 text-slate-600 group-hover:text-cyan-400 transition-all duration-300">
-            <span className="h-px w-3 bg-slate-600 group-hover:w-6 group-hover:bg-cyan-400 transition-all duration-300" />
-            View Details
-          </div>
+          <p className="text-[7px] text-slate-500 uppercase tracking-widest mb-1">{project.shortTech}</p>
+          <p className="text-[9px] text-slate-400/80 font-light leading-relaxed line-clamp-2">{project.shortDesc}</p>
         </div>
       </Html>
     </Float>
   )
 }
 
-/* ── Portfolio Zone (scattered project cards) ─────────────── */
+/* ── Portfolio Zone (well-spaced project cards) ───────────── */
 function PortfolioContent({ onProjectSelect }: { onProjectSelect: (project: typeof projectsData[0]) => void }) {
+  // Arrange in a wider arc so cards don't overlap
   const positions: [number, number, number][] = [
-    [-5, 3, 2],
-    [4, 2, -3],
-    [-3, -2, 3],
-    [5, -1, -1],
-    [-4, 4, -3],
-    [3, -3, 2],
-    [-1, 1, -5],
+    [-10, 4, 5],
+    [0, 5, 6],
+    [9, 4, 4],
+    [-9, -3, 4],
+    [0, -4, 5],
+    [9, -3, 3],
+    [-5, 0, -4],
   ]
   
   return (
@@ -251,68 +248,54 @@ function PortfolioContent({ onProjectSelect }: { onProjectSelect: (project: type
 function AboutContent() {
   return (
     <group position={[0, -30, -40]}>
-      {/* Bio card - slightly off-center */}
-      <Float speed={1.2} floatIntensity={0.5} rotationIntensity={0.05}>
-        <Html
-          transform
-          position={[3, 2, 3]}
-          distanceFactor={13}
-          style={{ pointerEvents: 'none' }}
-        >
-          <div className="w-[280px] p-5 rounded-xl bg-slate-950/50 backdrop-blur-sm border border-white/10 select-none">
-            <div className="text-[9px] text-cyan-400 tracking-[0.3em] mb-2 font-bold">01 // ABOUT ME</div>
-            <h3 className="text-base font-medium text-white tracking-tight mb-3">The Architect.</h3>
-            <div className="space-y-2 text-slate-300 font-light text-[10px] leading-relaxed">
-              <p>I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer and Creative Technologist based in <b className="text-white font-medium">Bandung, Indonesia</b>.</p>
-              <p>Currently <b className="text-white font-medium">Technology Lead for Crown Allstar</b> (15x Indonesian National Cheerleading Champion).</p>
-              <p className="italic text-cyan-300/80">&quot;Code is poetry, optimization is art, and every interface should feel alive.&quot;</p>
+      {/* Bio card */}
+      <Float speed={1} floatIntensity={0.3} rotationIntensity={0.02}>
+        <Html transform position={[5, 3, 5]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+          <div className="w-[240px] p-4 rounded-xl bg-slate-950/70 border border-white/10 select-none">
+            <div className="text-[8px] text-cyan-400 tracking-[0.3em] mb-2 font-bold">01 // ABOUT ME</div>
+            <h3 className="text-sm font-medium text-white tracking-tight mb-2">The Architect.</h3>
+            <div className="space-y-1.5 text-slate-300 font-light text-[9px] leading-relaxed">
+              <p>I&apos;m <b className="text-white font-medium">Bayu Darmawan</b>, a Full-Stack Developer based in <b className="text-white font-medium">Bandung, Indonesia</b>.</p>
+              <p><b className="text-white font-medium">Tech Lead @ Crown Allstar</b> — 15x National Cheerleading Champion.</p>
+              <p className="italic text-cyan-300/80">&quot;Code is poetry, optimization is art.&quot;</p>
             </div>
           </div>
         </Html>
       </Float>
 
-      {/* Quick facts - scattered */}
-      <Float speed={1.8} floatIntensity={0.7} rotationIntensity={0.08}>
-        <Html transform position={[-4, 1, 2]} distanceFactor={13} style={{ pointerEvents: 'none' }}>
-          <div className="w-[130px] p-3 rounded-lg bg-slate-950/40 backdrop-blur-sm border border-cyan-400/20 select-none">
-            <div className="text-[8px] text-slate-500 uppercase tracking-wider">Location</div>
-            <div className="text-[11px] text-white font-medium">Bandung, ID</div>
+      {/* Quick facts - well spread */}
+      <Float speed={1.5} floatIntensity={0.4} rotationIntensity={0.03}>
+        <Html transform position={[-7, 3, 4]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+          <div className="w-[110px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
+            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Location</div>
+            <div className="text-[10px] text-white font-medium">Bandung, ID</div>
           </div>
         </Html>
       </Float>
 
-      <Float speed={2} floatIntensity={0.9} rotationIntensity={0.1}>
-        <Html transform position={[-3, -2, 1]} distanceFactor={13} style={{ pointerEvents: 'none' }}>
-          <div className="w-[130px] p-3 rounded-lg bg-slate-950/40 backdrop-blur-sm border border-cyan-400/20 select-none">
-            <div className="text-[8px] text-slate-500 uppercase tracking-wider">Experience</div>
-            <div className="text-[11px] text-white font-medium">5+ Years</div>
+      <Float speed={1.8} floatIntensity={0.5} rotationIntensity={0.04}>
+        <Html transform position={[-6, -3, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+          <div className="w-[110px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
+            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Experience</div>
+            <div className="text-[10px] text-white font-medium">5+ Years</div>
           </div>
         </Html>
       </Float>
 
-      <Float speed={1.5} floatIntensity={0.6} rotationIntensity={0.06}>
-        <Html transform position={[4, -1, -2]} distanceFactor={13} style={{ pointerEvents: 'none' }}>
-          <div className="w-[130px] p-3 rounded-lg bg-slate-950/40 backdrop-blur-sm border border-cyan-400/20 select-none">
-            <div className="text-[8px] text-slate-500 uppercase tracking-wider">Specialty</div>
-            <div className="text-[11px] text-white font-medium">Full-Stack & WebGL</div>
+      <Float speed={1.3} floatIntensity={0.3} rotationIntensity={0.02}>
+        <Html transform position={[7, -2, 3]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+          <div className="w-[120px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
+            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Specialty</div>
+            <div className="text-[10px] text-white font-medium">Full-Stack & WebGL</div>
           </div>
         </Html>
       </Float>
 
-      <Float speed={1.3} floatIntensity={0.8} rotationIntensity={0.07}>
-        <Html transform position={[2, 3, -3]} distanceFactor={13} style={{ pointerEvents: 'none' }}>
-          <div className="w-[150px] p-3 rounded-lg bg-slate-950/40 backdrop-blur-sm border border-cyan-400/20 select-none">
-            <div className="text-[8px] text-slate-500 uppercase tracking-wider">Current Role</div>
-            <div className="text-[11px] text-white font-medium">Tech Lead @ Crown</div>
-          </div>
-        </Html>
-      </Float>
-
-      <Float speed={1.6} floatIntensity={0.5} rotationIntensity={0.04}>
-        <Html transform position={[-1, -3, 3]} distanceFactor={13} style={{ pointerEvents: 'none' }}>
-          <div className="w-[150px] p-3 rounded-lg bg-slate-950/40 backdrop-blur-sm border border-cyan-400/20 select-none">
-            <div className="text-[8px] text-slate-500 uppercase tracking-wider">Also At</div>
-            <div className="text-[11px] text-white font-medium">Dupoin (Fintech)</div>
+      <Float speed={1.1} floatIntensity={0.4} rotationIntensity={0.03}>
+        <Html transform position={[4, -5, 2]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
+          <div className="w-[130px] p-2.5 rounded-lg bg-slate-950/60 border border-cyan-400/15 select-none">
+            <div className="text-[7px] text-slate-500 uppercase tracking-wider">Also At</div>
+            <div className="text-[10px] text-white font-medium">Dupoin (Fintech)</div>
           </div>
         </Html>
       </Float>
@@ -323,47 +306,38 @@ function AboutContent() {
 /* ── Contact Zone (floating links) ────────────────────────── */
 function ContactContent() {
   const positions: [number, number, number][] = [
-    [-3, 2, 3],
-    [3, 1, -2],
-    [-1, -2, 2],
+    [-6, 2, 5],
+    [6, 1, 4],
+    [0, -3, 5],
   ]
 
   return (
     <group position={[0, 60, 20]}>
       {/* Title */}
-      <Float speed={1} floatIntensity={0.3} rotationIntensity={0.02}>
-        <Html transform position={[0, 4, 2]} distanceFactor={13} style={{ pointerEvents: 'none' }}>
+      <Float speed={0.8} floatIntensity={0.2} rotationIntensity={0.01}>
+        <Html transform position={[0, 5, 4]} distanceFactor={10} style={{ pointerEvents: 'none' }}>
           <div className="text-center select-none">
-            <div className="text-[9px] text-amber-400 tracking-[0.3em] font-bold mb-1">04 // GET IN TOUCH</div>
-            <h3 className="text-lg font-medium text-white tracking-tight">Let&apos;s Connect.</h3>
-            <p className="text-[10px] text-slate-400 font-light mt-1 max-w-[200px]">
-              Ready to build something amazing together.
-            </p>
+            <div className="text-[8px] text-amber-400 tracking-[0.3em] font-bold mb-1">04 // GET IN TOUCH</div>
+            <h3 className="text-base font-medium text-white tracking-tight">Let&apos;s Connect.</h3>
           </div>
         </Html>
       </Float>
 
-      {/* Contact links as individual floating elements */}
       {contactLinks.map((contact, i) => (
-        <Float key={contact.label} speed={1.5 + i * 0.3} floatIntensity={0.7} rotationIntensity={0.05}>
-          <Html
-            transform
-            position={positions[i]}
-            distanceFactor={12}
-            style={{ pointerEvents: 'auto' }}
-          >
+        <Float key={contact.label} speed={1 + i * 0.2} floatIntensity={0.4} rotationIntensity={0.02}>
+          <Html transform position={positions[i]} distanceFactor={10} style={{ pointerEvents: 'auto' }}>
             <a
               href={contact.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-[180px] p-3 rounded-xl bg-slate-950/50 backdrop-blur-sm border border-white/10 cursor-pointer select-none transition-all duration-300 hover:bg-slate-900/70 hover:border-white/20 hover:scale-105 group"
+              className="block w-[160px] p-3 rounded-xl bg-slate-950/70 border border-white/10 cursor-pointer select-none transition-all duration-300 hover:bg-slate-900/80 hover:border-white/25 hover:scale-105 group"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-medium text-white group-hover:text-amber-300 transition-colors">{contact.label}</div>
-                  <div className="text-[8px] text-slate-400 tracking-widest uppercase mt-0.5">{contact.sub}</div>
+                  <div className="text-[10px] font-medium text-white group-hover:text-amber-300 transition-colors">{contact.label}</div>
+                  <div className="text-[7px] text-slate-400 tracking-widest uppercase mt-0.5">{contact.sub}</div>
                 </div>
-                <div className="text-slate-500 group-hover:text-white transition-colors transform group-hover:translate-x-0.5 text-sm">→</div>
+                <div className="text-slate-500 group-hover:text-white transition-colors text-xs">→</div>
               </div>
             </a>
           </Html>
