@@ -69,6 +69,7 @@ export default function HomePage() {
   const isTransitioning = useRef(false)
   const lastWheelTime = useRef(0)
   const activeIndexRef = useRef(0)
+  const accumulatedDelta = useRef(0)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -83,6 +84,7 @@ export default function HomePage() {
     isTransitioning.current = true
     activeIndexRef.current = index
     setActiveIndex(index)
+    accumulatedDelta.current = 0
 
     if (viewportRef.current) {
       viewportRef.current.style.transform = `translateY(-${index * 100}vh)`
@@ -91,13 +93,30 @@ export default function HomePage() {
     setTimeout(() => { isTransitioning.current = false }, 800)
   }, [])
 
-  // Wheel handler
+  // Wheel handler — smart: allows internal scroll, switches section at edges
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      e.preventDefault()
-      // Don't intercept if a project modal is open
       if (selectedProject) return
 
+      // Find the active section's scrollable inner
+      const activePanelInner = document.querySelector(
+        `.section-panel:nth-child(${activeIndexRef.current + 1}) .section-panel-inner`
+      ) as HTMLElement | null
+
+      if (activePanelInner) {
+        const { scrollTop, scrollHeight, clientHeight } = activePanelInner
+        const atTop = scrollTop <= 0
+        const atBottom = scrollTop + clientHeight >= scrollHeight - 2
+
+        // If content is scrollable and NOT at edge, let it scroll naturally
+        if (scrollHeight > clientHeight + 5) {
+          if (e.deltaY > 0 && !atBottom) return
+          if (e.deltaY < 0 && !atTop) return
+        }
+      }
+
+      // At edge or non-scrollable — handle section transition
+      e.preventDefault()
       const now = Date.now()
       if (now - lastWheelTime.current < 800) return
       lastWheelTime.current = now
@@ -430,62 +449,64 @@ export default function HomePage() {
         <section className="section-panel" style={{ top: '300vh' }}>
           <div className="section-panel-inner">
             <div className="neon-line-h w-full" />
-            <div className="min-h-screen py-16 md:py-20">
-              <div className="max-w-5xl mx-auto px-6 md:pl-24 md:pr-12 w-full">
+            <div className="py-10 md:py-14">
+              <div className="max-w-6xl mx-auto px-6 md:pl-24 md:pr-12 w-full">
                 <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-emerald-400 tracking-[0.3em] uppercase">
                   03 // Work
                 </span>
-                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mt-3 mb-2 font-[family-name:var(--font-geist-mono)]">
+                <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight mt-2 mb-1 font-[family-name:var(--font-geist-mono)]">
                   Selected Projects<span className="typing-cursor" />
                 </h2>
-                <div className="heading-line mb-10" style={{ background: '#34d399', boxShadow: '0 0 10px #34d399' }} />
+                <div className="heading-line mb-6" style={{ background: '#34d399', boxShadow: '0 0 10px #34d399' }} />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {projectsData.map((project, index) => {
                     const accentColor = colorMap[project.colorClass] || '#22d3ee'
                     const num = String(index + 1).padStart(2, '0')
                     return (
                       <div
                         key={project.id}
-                        className="project-card-cyber p-6 group"
+                        className="project-card-cyber p-4 group"
                         onClick={() => setSelectedProject(project)}
                       >
                         {/* Number + title */}
-                        <div className="flex items-start gap-3 mb-3">
+                        <div className="flex items-start gap-2 mb-2">
                           <span
-                            className="text-3xl font-black font-[family-name:var(--font-geist-mono)] opacity-20"
+                            className="text-xl font-black font-[family-name:var(--font-geist-mono)] opacity-20 leading-none"
                             style={{ color: accentColor }}
                           >
                             {num}
                           </span>
-                          <div className="flex-1">
-                            <h3 className="text-base font-semibold text-white group-hover:text-cyan-300 transition-colors font-[family-name:var(--font-geist-mono)]">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-white group-hover:text-cyan-300 transition-colors font-[family-name:var(--font-geist-mono)] leading-tight truncate">
                               {project.title}
                             </h3>
-                            <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-1 font-[family-name:var(--font-geist-mono)]">
+                            <p className="text-[8px] text-slate-600 uppercase tracking-widest mt-0.5 font-[family-name:var(--font-geist-mono)] truncate">
                               {project.shortTech}
                             </p>
                           </div>
+                        </div>
+
+                        <p className="text-[11px] text-slate-500 font-light leading-relaxed mb-3 line-clamp-2">
+                          {project.shortDesc}
+                        </p>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1 text-[9px] text-slate-600 group-hover:text-cyan-400 transition-colors font-[family-name:var(--font-geist-mono)]">
+                            <span>Details</span>
+                            <ArrowUpRight size={10} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                          </div>
                           <span
-                            className="text-[9px] px-2 py-1 rounded border font-[family-name:var(--font-geist-mono)] text-slate-500 shrink-0"
-                            style={{ borderColor: `${accentColor}44` }}
+                            className="text-[8px] px-1.5 py-0.5 rounded border font-[family-name:var(--font-geist-mono)] text-slate-600"
+                            style={{ borderColor: `${accentColor}33` }}
                           >
                             {project.year}
                           </span>
                         </div>
 
-                        <p className="text-xs text-slate-500 font-light leading-relaxed mb-4 line-clamp-2">
-                          {project.shortDesc}
-                        </p>
-
-                        <div className="flex items-center gap-1.5 text-[10px] text-slate-600 group-hover:text-cyan-400 transition-colors font-[family-name:var(--font-geist-mono)]">
-                          <span>View Details</span>
-                          <ArrowUpRight size={11} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                        </div>
-
                         {/* Accent glow */}
                         <div
-                          className="absolute top-0 right-0 w-32 h-32 opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-bl-full"
+                          className="absolute top-0 right-0 w-24 h-24 opacity-0 group-hover:opacity-15 transition-opacity duration-500 rounded-bl-full"
                           style={{ background: `radial-gradient(ellipse at top right, ${accentColor}, transparent 70%)` }}
                         />
                       </div>
