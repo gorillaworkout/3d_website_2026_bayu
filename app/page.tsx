@@ -64,57 +64,67 @@ const colorMap: Record<string, string> = {
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
+  const isTransitioning = useRef(false)
   const lastWheelTime = useRef(0)
+  const activeIndexRef = useRef(0)
 
   useEffect(() => { setMounted(true) }, [])
 
+  // Keep ref in sync
+  useEffect(() => {
+    activeIndexRef.current = activeIndex
+  }, [activeIndex])
+
   // Navigate to section
   const goToSection = useCallback((index: number) => {
-    if (index < 0 || index >= sections.length || isTransitioning) return
-    setIsTransitioning(true)
+    if (index < 0 || index >= sections.length || isTransitioning.current) return
+    isTransitioning.current = true
+    activeIndexRef.current = index
     setActiveIndex(index)
 
     if (viewportRef.current) {
       viewportRef.current.style.transform = `translateY(-${index * 100}vh)`
     }
 
-    setTimeout(() => setIsTransitioning(false), 800)
-  }, [isTransitioning])
+    setTimeout(() => { isTransitioning.current = false }, 800)
+  }, [])
 
   // Wheel handler
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
       // Don't intercept if a project modal is open
       if (selectedProject) return
 
       const now = Date.now()
-      if (now - lastWheelTime.current < 1000) return
+      if (now - lastWheelTime.current < 800) return
       lastWheelTime.current = now
 
-      if (e.deltaY > 30) {
-        goToSection(activeIndex + 1)
-      } else if (e.deltaY < -30) {
-        goToSection(activeIndex - 1)
+      const idx = activeIndexRef.current
+      if (e.deltaY > 5) {
+        goToSection(idx + 1)
+      } else if (e.deltaY < -5) {
+        goToSection(idx - 1)
       }
     }
 
     window.addEventListener('wheel', handleWheel, { passive: false })
     return () => window.removeEventListener('wheel', handleWheel)
-  }, [activeIndex, goToSection, selectedProject])
+  }, [goToSection, selectedProject])
 
   // Keyboard handler
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (selectedProject) return
+      const idx = activeIndexRef.current
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault()
-        goToSection(activeIndex + 1)
+        goToSection(idx + 1)
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault()
-        goToSection(activeIndex - 1)
+        goToSection(idx - 1)
       }
     }
     window.addEventListener('keydown', handleKey)
@@ -130,9 +140,10 @@ export default function HomePage() {
     const handleTouchEnd = (e: TouchEvent) => {
       if (selectedProject) return
       const delta = touchStartY - e.changedTouches[0].clientY
+      const idx = activeIndexRef.current
       if (Math.abs(delta) > 50) {
-        if (delta > 0) goToSection(activeIndex + 1)
-        else goToSection(activeIndex - 1)
+        if (delta > 0) goToSection(idx + 1)
+        else goToSection(idx - 1)
       }
     }
     window.addEventListener('touchstart', handleTouchStart, { passive: true })
