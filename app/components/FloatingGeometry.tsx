@@ -24,7 +24,7 @@ function FloatingShape({
       color: new THREE.Color(color),
       wireframe: true,
       transparent: true,
-      opacity: 0.12,
+      opacity: 0.25,
     }),
     [color]
   );

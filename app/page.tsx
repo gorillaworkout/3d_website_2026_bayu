@@ -82,11 +82,10 @@ export default function HomePage() {
   }, [activeIndex])
 
   // ── GSAP entrance animations on section change ──
-  useEffect(() => {
+  const animateSection = useCallback((sectionIndex: number) => {
     // Target the active section panel
-    const panel = document.querySelector(
-      `.section-panel:nth-child(${activeIndex + 1})`
-    )
+    const panels = document.querySelectorAll('.section-panel')
+    const panel = panels[sectionIndex]
     if (!panel) return
 
     // Reset all animatable elements in this section to initial state, then animate
@@ -130,7 +129,19 @@ export default function HomePage() {
         { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)', stagger: 0.06, delay: 0.25 }
       )
     }
-  }, [activeIndex])
+  }, [])
+
+  // Trigger animation on section change
+  useEffect(() => {
+    animateSection(activeIndex)
+  }, [activeIndex, animateSection])
+
+  // Also trigger hero animation on initial mount (slight delay for DOM readiness)
+  useEffect(() => {
+    const timer = setTimeout(() => animateSection(0), 100)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Navigate to section
   const goToSection = useCallback((index: number) => {
