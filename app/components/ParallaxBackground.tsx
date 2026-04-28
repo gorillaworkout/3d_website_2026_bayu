@@ -58,11 +58,11 @@ export default function ParallaxBackground({
           style={{
             backgroundImage:
               variant === 'grid'
-                ? `linear-gradient(${accentColor}08 1px, transparent 1px),
-                   linear-gradient(90deg, ${accentColor}08 1px, transparent 1px)`
+                ? `linear-gradient(${accentColor}18 1px, transparent 1px),
+                   linear-gradient(90deg, ${accentColor}18 1px, transparent 1px)`
                 : variant === 'dots'
-                ? `radial-gradient(circle, ${accentColor}15 1px, transparent 1px)`
-                : `linear-gradient(${accentColor}06 1px, transparent 1px)`,
+                ? `radial-gradient(circle, ${accentColor}30 1.5px, transparent 1.5px)`
+                : `linear-gradient(${accentColor}15 1px, transparent 1px)`,
             backgroundSize:
               variant === 'grid' ? '60px 60px' : variant === 'dots' ? '30px 30px' : '100% 40px',
           }}
@@ -81,7 +81,7 @@ export default function ParallaxBackground({
           style={{
             top: '15%',
             left: '10%',
-            background: `radial-gradient(circle, ${accentColor}08 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${accentColor}18 0%, transparent 70%)`,
             animation: 'floatSlow 20s ease-in-out infinite alternate',
           }}
         />
@@ -90,7 +90,7 @@ export default function ParallaxBackground({
           style={{
             top: '60%',
             right: '15%',
-            borderColor: `${accentColor}10`,
+            borderColor: `${accentColor}20`,
             animation: 'floatMed 15s ease-in-out infinite alternate-reverse',
           }}
         />
@@ -99,7 +99,7 @@ export default function ParallaxBackground({
           style={{
             top: '30%',
             left: '70%',
-            background: `linear-gradient(180deg, transparent, ${accentColor}15, transparent)`,
+            background: `linear-gradient(180deg, transparent, ${accentColor}25, transparent)`,
             animation: 'floatSlow 18s ease-in-out infinite alternate',
           }}
         />
@@ -108,7 +108,7 @@ export default function ParallaxBackground({
           style={{
             bottom: '25%',
             left: '25%',
-            border: `1px solid ${accentColor}08`,
+            border: `1px solid ${accentColor}18`,
             transform: 'rotate(45deg)',
             animation: 'floatMed 22s ease-in-out infinite alternate-reverse',
           }}

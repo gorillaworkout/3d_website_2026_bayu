@@ -83,50 +83,67 @@ export default function HomePage() {
 
   // ── GSAP entrance animations on section change ──
   const animateSection = useCallback((sectionIndex: number) => {
-    // Target the active section panel
     const panels = document.querySelectorAll('.section-panel')
     const panel = panels[sectionIndex]
     if (!panel) return
 
-    // Reset all animatable elements in this section to initial state, then animate
     const fadeIns = panel.querySelectorAll('.gsap-fade-in')
     const fadeLefts = panel.querySelectorAll('.gsap-fade-in-left')
     const fadeRights = panel.querySelectorAll('.gsap-fade-in-right')
     const scaleIns = panel.querySelectorAll('.gsap-scale-in')
+    const heroLetters = panel.querySelectorAll('.hero-letter')
 
-    // Kill any running tweens on these elements
-    const allEls = [...fadeIns, ...fadeLefts, ...fadeRights, ...scaleIns]
+    const allEls = [...fadeIns, ...fadeLefts, ...fadeRights, ...scaleIns, ...heroLetters]
     allEls.forEach(el => gsap.killTweensOf(el))
 
-    // Animate fade-in-left (headings)
+    const tl = gsap.timeline()
+
+    // Hero letters — dramatic per-character cascade
+    if (heroLetters.length) {
+      tl.fromTo(heroLetters,
+        { opacity: 0, y: 120, rotateX: -90, scale: 0.5 },
+        {
+          opacity: 1, y: 0, rotateX: 0, scale: 1,
+          duration: 0.8, ease: 'back.out(2)',
+          stagger: { each: 0.05, from: 'start' }
+        },
+        0
+      )
+    }
+
+    // Headings — dramatic slide from far left with blur
     if (fadeLefts.length) {
-      gsap.fromTo(fadeLefts,
-        { opacity: 0, x: -60 },
-        { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out', stagger: 0.1 }
+      tl.fromTo(fadeLefts,
+        { opacity: 0, x: -200, filter: 'blur(12px)', skewX: -8 },
+        { opacity: 1, x: 0, filter: 'blur(0px)', skewX: 0, duration: 1, ease: 'expo.out', stagger: 0.12 },
+        heroLetters.length ? 0.4 : 0
       )
     }
 
-    // Animate fade-in (content blocks)
+    // Content blocks — rise up from below with scale
     if (fadeIns.length) {
-      gsap.fromTo(fadeIns,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.08, delay: 0.15 }
+      tl.fromTo(fadeIns,
+        { opacity: 0, y: 80, scale: 0.9, filter: 'blur(6px)' },
+        { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 0.9, ease: 'power4.out', stagger: 0.1 },
+        heroLetters.length ? 0.6 : 0.2
       )
     }
 
-    // Animate fade-in-right
+    // Right elements — slide from far right
     if (fadeRights.length) {
-      gsap.fromTo(fadeRights,
-        { opacity: 0, x: 60 },
-        { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out', stagger: 0.1, delay: 0.1 }
+      tl.fromTo(fadeRights,
+        { opacity: 0, x: 200, filter: 'blur(12px)', skewX: 8 },
+        { opacity: 1, x: 0, filter: 'blur(0px)', skewX: 0, duration: 1, ease: 'expo.out', stagger: 0.12 },
+        0.15
       )
     }
 
-    // Animate scale-in (cards, grid items)
+    // Cards — pop in with bounce and rotation
     if (scaleIns.length) {
-      gsap.fromTo(scaleIns,
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)', stagger: 0.06, delay: 0.25 }
+      tl.fromTo(scaleIns,
+        { opacity: 0, scale: 0.3, rotateY: 25, filter: 'blur(8px)' },
+        { opacity: 1, scale: 1, rotateY: 0, filter: 'blur(0px)', duration: 0.7, ease: 'back.out(1.7)', stagger: 0.08 },
+        0.3
       )
     }
   }, [])
@@ -327,20 +344,24 @@ export default function HomePage() {
 
           <div className="relative z-10 flex items-center justify-center h-full px-6 md:pl-20">
             <div className="text-center max-w-4xl">
-              {/* Name */}
-              <h1 className="hero-name mb-4 gsap-fade-in-left">
+              {/* Name — per-letter animation */}
+              <h1 className="hero-name mb-4">
                 <span
                   className="cyber-glitch block text-[clamp(3rem,11vw,9rem)] font-black tracking-tighter leading-[0.85] font-[family-name:var(--font-geist-mono)] neon-cyan"
                   data-text="BAYU"
                 >
-                  BAYU
+                  {'BAYU'.split('').map((char, i) => (
+                    <span key={i} className="hero-letter inline-block">{char}</span>
+                  ))}
                 </span>
                 <span
                   className="cyber-glitch block text-[clamp(2.5rem,9vw,7rem)] font-black tracking-tighter leading-[0.85] font-[family-name:var(--font-geist-mono)] mt-2"
                   data-text="DARMAWAN"
                   style={{ color: '#ec4899', textShadow: '0 0 10px #ec4899, 0 0 20px #ec4899' }}
                 >
-                  DARMAWAN
+                  {'DARMAWAN'.split('').map((char, i) => (
+                    <span key={i} className="hero-letter inline-block">{char}</span>
+                  ))}
                 </span>
               </h1>
 

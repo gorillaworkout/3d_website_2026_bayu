@@ -1064,6 +1064,14 @@ body {
 }
 
 /* Hero character animation */
+.hero-letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(120px) rotateX(-90deg) scale(0.5);
+  transform-style: preserve-3d;
+  perspective: 500px;
+}
+
 .hero-char {
   display: inline-block;
   opacity: 0;
