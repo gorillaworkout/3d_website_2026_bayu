@@ -859,3 +859,241 @@ body {
   animation: typingCursor 1s step-end infinite;
   padding-right: 2px;
 }
+
+/* ══════════════════════════════════════════════════
+   CINEMATIC TRANSITIONS & PARALLAX
+   ══════════════════════════════════════════════════ */
+
+/* 3D perspective wrapper */
+.sections-viewport {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.section-panel {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Floating shapes animation */
+@keyframes floatShape {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(10px, -15px) rotate(5deg);
+  }
+  50% {
+    transform: translate(-5px, -25px) rotate(-3deg);
+  }
+  75% {
+    transform: translate(15px, -10px) rotate(7deg);
+  }
+}
+
+/* Film grain overlay */
+.grain-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  animation: grainShift 0.5s steps(4) infinite;
+}
+
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 2px); }
+  50% { transform: translate(2px, -2px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(1px, 1px); }
+}
+
+/* Aurora gradient blobs */
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.aurora-blob-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--cyan), transparent 70%);
+  animation: auroraFloat1 20s ease-in-out infinite;
+}
+
+.aurora-blob-2 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--magenta), transparent 70%);
+  animation: auroraFloat2 25s ease-in-out infinite;
+}
+
+.aurora-blob-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, var(--purple), transparent 70%);
+  animation: auroraFloat3 18s ease-in-out infinite;
+}
+
+@keyframes auroraFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(60px, -40px) scale(1.1); }
+  66% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+@keyframes auroraFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-50px, 50px) scale(1.15); }
+  66% { transform: translate(40px, -20px) scale(0.9); }
+}
+
+@keyframes auroraFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, 60px) scale(0.9); }
+  66% { transform: translate(-60px, -30px) scale(1.1); }
+}
+
+/* GSAP entrance animation helper classes */
+.gsap-fade-in {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.gsap-fade-in-left {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+.gsap-fade-in-right {
+  opacity: 0;
+  transform: translateX(60px);
+}
+
+.gsap-scale-in {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Section transition effects */
+.section-entering {
+  animation: sectionEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sectionEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.95);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* Parallax grid for hero */
+.parallax-grid {
+  position: absolute;
+  inset: -50px;
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Reveal mask */
+.reveal-mask {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-mask.revealed {
+  clip-path: inset(0 0 0 0);
+}
+
+/* 3D tilt card */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease-out;
+  will-change: transform;
+}
+
+.tilt-card:hover {
+  transform: perspective(800px) rotateY(5deg) rotateX(-5deg) translateZ(10px);
+}
+
+/* Stagger children animation base */
+.stagger-child {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Glow line that sweeps across sections */
+@keyframes sweepGlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.sweep-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.sweep-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--card-accent, rgba(34, 211, 238, 0.15)), transparent);
+  opacity: 0.15;
+  animation: sweepGlow 4s ease-in-out infinite;
+}
+
+/* Hero character animation */
+.hero-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(50px) rotateX(-90deg);
+}
+
+/* Morphing background */
+@keyframes morphBg {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50% { border-radius: 50% 60% 30% 60% / 40% 70% 60% 50%; }
+  75% { border-radius: 60% 30% 60% 40% / 70% 50% 40% 60%; }
+}
+
+.morph-blob {
+  animation: morphBg 12s ease-in-out infinite;
+}
+
+/* ParallaxBackground keyframes */
+@keyframes floatSlow {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(15px, -20px); }
+}
+
+@keyframes floatMed {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-10px, 15px); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.5); }
+}

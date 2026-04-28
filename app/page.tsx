@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
+import gsap from 'gsap'
 import { ArrowUpRight, Home, User, Cpu, Briefcase, Mail } from 'lucide-react'
 
 /* ── Existing components ──────────────────────────── */
 import ProjectModal from './components/ProjectModal'
+import ParallaxBackground from './components/ParallaxBackground'
 
 /* ── ReactBits components ─────────────────────────── */
 import GradientText from './components/reactbits/GradientText'
@@ -16,6 +18,7 @@ import { projectsData } from './data/projects'
 
 /* ── Lazy loaded heavy components (no SSR) ────────── */
 const Particles = dynamic(() => import('./components/reactbits/Particles'), { ssr: false })
+const FloatingGeometry = dynamic(() => import('./components/FloatingGeometry'), { ssr: false })
 
 /* ── Data ─────────────────────────────────────────── */
 const skillCategories = [
@@ -76,6 +79,57 @@ export default function HomePage() {
   // Keep ref in sync
   useEffect(() => {
     activeIndexRef.current = activeIndex
+  }, [activeIndex])
+
+  // ── GSAP entrance animations on section change ──
+  useEffect(() => {
+    // Target the active section panel
+    const panel = document.querySelector(
+      `.section-panel:nth-child(${activeIndex + 1})`
+    )
+    if (!panel) return
+
+    // Reset all animatable elements in this section to initial state, then animate
+    const fadeIns = panel.querySelectorAll('.gsap-fade-in')
+    const fadeLefts = panel.querySelectorAll('.gsap-fade-in-left')
+    const fadeRights = panel.querySelectorAll('.gsap-fade-in-right')
+    const scaleIns = panel.querySelectorAll('.gsap-scale-in')
+
+    // Kill any running tweens on these elements
+    const allEls = [...fadeIns, ...fadeLefts, ...fadeRights, ...scaleIns]
+    allEls.forEach(el => gsap.killTweensOf(el))
+
+    // Animate fade-in-left (headings)
+    if (fadeLefts.length) {
+      gsap.fromTo(fadeLefts,
+        { opacity: 0, x: -60 },
+        { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out', stagger: 0.1 }
+      )
+    }
+
+    // Animate fade-in (content blocks)
+    if (fadeIns.length) {
+      gsap.fromTo(fadeIns,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.08, delay: 0.15 }
+      )
+    }
+
+    // Animate fade-in-right
+    if (fadeRights.length) {
+      gsap.fromTo(fadeRights,
+        { opacity: 0, x: 60 },
+        { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out', stagger: 0.1, delay: 0.1 }
+      )
+    }
+
+    // Animate scale-in (cards, grid items)
+    if (scaleIns.length) {
+      gsap.fromTo(scaleIns,
+        { opacity: 0, scale: 0.8 },
+        { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)', stagger: 0.06, delay: 0.25 }
+      )
+    }
   }, [activeIndex])
 
   // Navigate to section
@@ -179,6 +233,9 @@ export default function HomePage() {
       {/* Scanline overlay */}
       <div className="scanline-overlay" />
 
+      {/* Grain overlay */}
+      <div className="grain-overlay" />
+
       {/* ═══════════════════════════════════════════
           SIDEBAR NAV — Desktop
          ═══════════════════════════════════════════ */}
@@ -234,6 +291,17 @@ export default function HomePage() {
             SECTION 0: HERO
            ═══════════════════════════════════════════ */}
         <section className="section-panel circuit-bg" style={{ top: '0vh' }}>
+          {/* Parallax BG */}
+          <ParallaxBackground activeIndex={activeIndex} sectionIndex={0} accentColor="#22d3ee" variant="grid" />
+
+          {/* R3F Floating Geometry */}
+          {mounted && <FloatingGeometry accentColor="#22d3ee" className="z-0" />}
+
+          {/* Aurora blobs */}
+          <div className="aurora-blob aurora-blob-1" style={{ top: '10%', left: '-5%' }} />
+          <div className="aurora-blob aurora-blob-2" style={{ top: '50%', right: '-10%' }} />
+          <div className="aurora-blob aurora-blob-3" style={{ bottom: '5%', left: '30%' }} />
+
           {/* Particles BG */}
           {mounted && (
             <div className="absolute inset-0 z-0">
@@ -249,7 +317,7 @@ export default function HomePage() {
           <div className="relative z-10 flex items-center justify-center h-full px-6 md:pl-20">
             <div className="text-center max-w-4xl">
               {/* Name */}
-              <h1 className="hero-name mb-4">
+              <h1 className="hero-name mb-4 gsap-fade-in-left">
                 <span
                   className="cyber-glitch block text-[clamp(3rem,11vw,9rem)] font-black tracking-tighter leading-[0.85] font-[family-name:var(--font-geist-mono)] neon-cyan"
                   data-text="BAYU"
@@ -266,17 +334,17 @@ export default function HomePage() {
               </h1>
 
               {/* Animated line */}
-              <div className="animated-line w-48 md:w-72 mx-auto my-8" />
+              <div className="animated-line w-48 md:w-72 mx-auto my-8 gsap-fade-in" />
 
               {/* Subtitle */}
-              <div className="subtitle-pulse">
+              <div className="subtitle-pulse gsap-fade-in">
                 <span className="text-xs md:text-sm font-[family-name:var(--font-geist-mono)] tracking-[0.3em] uppercase text-cyan-400">
                   Full-Stack Developer · Creative Technologist
                 </span>
               </div>
 
               {/* Tagline */}
-              <div className="mt-6">
+              <div className="mt-6 gsap-fade-in">
                 <GradientText
                   colors={['#22d3ee', '#8b5cf6', '#ec4899', '#22d3ee']}
                   animationSpeed={6}
@@ -301,6 +369,8 @@ export default function HomePage() {
             SECTION 1: ABOUT
            ═══════════════════════════════════════════ */}
         <section className="section-panel" style={{ top: '100vh' }}>
+          <ParallaxBackground activeIndex={activeIndex} sectionIndex={1} accentColor="#22d3ee" variant="dots" />
+          {mounted && <FloatingGeometry accentColor="#8b5cf6" className="z-0" />}
           <div className="section-panel-inner">
             <div className="neon-line-h w-full" />
             <div className="min-h-screen flex items-center py-16 md:py-0">
@@ -309,27 +379,27 @@ export default function HomePage() {
 
                   {/* Left — Bio */}
                   <div>
-                    <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-cyan-400 tracking-[0.3em] uppercase">
+                    <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-cyan-400 tracking-[0.3em] uppercase gsap-fade-in-left">
                       01 // About Me
                     </span>
-                    <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mt-3 mb-2 font-[family-name:var(--font-geist-mono)]">
+                    <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mt-3 mb-2 font-[family-name:var(--font-geist-mono)] gsap-fade-in-left">
                       The Architect<span className="typing-cursor" />
                     </h2>
                     <div className="heading-line mb-8" />
 
-                    <p className="text-sm md:text-base text-slate-400 font-light leading-relaxed mb-6">
+                    <p className="text-sm md:text-base text-slate-400 font-light leading-relaxed mb-6 gsap-fade-in">
                       I&apos;m Bayu Darmawan, a Full-Stack Developer based in Bandung, Indonesia.
                       Tech Lead at Crown Allstar — a 15x National Cheerleading Champion team.
                       I bridge the gap between creative design and robust engineering.
                     </p>
-                    <p className="text-sm md:text-base text-slate-500 font-light leading-relaxed italic mb-8">
+                    <p className="text-sm md:text-base text-slate-500 font-light leading-relaxed italic mb-8 gsap-fade-in">
                       &quot;Code is poetry, optimization is art.&quot;
                     </p>
 
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-4">
                       {stats.map((stat) => (
-                        <div key={stat.label} className="stat-box">
+                        <div key={stat.label} className="stat-box gsap-scale-in">
                           <div className="text-2xl md:text-3xl font-black font-[family-name:var(--font-geist-mono)] neon-cyan">
                             <CountUp to={stat.value} duration={2.5} suffix={stat.suffix} />
                           </div>
@@ -341,7 +411,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Quick facts */}
-                    <div className="mt-8 space-y-2">
+                    <div className="mt-8 space-y-2 gsap-fade-in">
                       {[
                         { label: 'Location', value: 'Bandung, ID' },
                         { label: 'Specialty', value: 'Full-Stack & WebGL' },
@@ -363,8 +433,14 @@ export default function HomePage() {
                   </div>
 
                   {/* Right — Decorative card */}
-                  <div className="flex items-center justify-center">
-                    <div className="cyber-card cyber-corners p-8 w-full max-w-sm">
+                  <div className="flex items-center justify-center gsap-fade-in-right">
+                    <div className="relative w-full max-w-sm">
+                      {/* Morph blob behind card */}
+                      <div
+                        className="morph-blob absolute -inset-8 opacity-20 pointer-events-none"
+                        style={{ background: 'radial-gradient(circle, var(--cyan), transparent 70%)' }}
+                      />
+                    <div className="cyber-card cyber-corners p-8 w-full relative">
                       <div className="text-[10px] font-[family-name:var(--font-geist-mono)] text-cyan-400/60 tracking-widest uppercase mb-4">
                         sys://profile.dat
                       </div>
@@ -389,6 +465,7 @@ export default function HomePage() {
                         STATUS: <span className="text-green-400">● ONLINE</span> | LAST BUILD: 2026
                       </div>
                     </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -400,14 +477,15 @@ export default function HomePage() {
             SECTION 2: SKILLS
            ═══════════════════════════════════════════ */}
         <section className="section-panel" style={{ top: '200vh' }}>
+          <ParallaxBackground activeIndex={activeIndex} sectionIndex={2} accentColor="#8b5cf6" variant="lines" />
           <div className="section-panel-inner">
             <div className="neon-line-h w-full" />
             <div className="min-h-screen flex items-center py-16 md:py-0">
               <div className="max-w-5xl mx-auto px-6 md:pl-24 md:pr-12 w-full">
-                <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-purple-400 tracking-[0.3em] uppercase">
+                <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-purple-400 tracking-[0.3em] uppercase gsap-fade-in-left">
                   02 // Skills
                 </span>
-                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mt-3 mb-2 font-[family-name:var(--font-geist-mono)]">
+                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mt-3 mb-2 font-[family-name:var(--font-geist-mono)] gsap-fade-in-left">
                   Tech Arsenal<span className="typing-cursor" />
                 </h2>
                 <div className="heading-line mb-10" style={{ background: '#8b5cf6', boxShadow: '0 0 10px #8b5cf6' }} />
@@ -416,7 +494,7 @@ export default function HomePage() {
                   {skillCategories.map((cat) => (
                     <div
                       key={cat.title}
-                      className="cyber-card p-6 rounded-xl"
+                      className="cyber-card p-6 rounded-xl gsap-scale-in sweep-glow"
                       style={{ '--card-accent': cat.color } as any}
                     >
                       <div
@@ -447,14 +525,15 @@ export default function HomePage() {
             SECTION 3: PROJECTS
            ═══════════════════════════════════════════ */}
         <section className="section-panel" style={{ top: '300vh' }}>
+          <ParallaxBackground activeIndex={activeIndex} sectionIndex={3} accentColor="#34d399" variant="grid" />
           <div className="section-panel-inner">
             <div className="neon-line-h w-full" />
             <div className="py-10 md:py-14">
               <div className="max-w-6xl mx-auto px-6 md:pl-24 md:pr-12 w-full">
-                <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-emerald-400 tracking-[0.3em] uppercase">
+                <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-emerald-400 tracking-[0.3em] uppercase gsap-fade-in-left">
                   03 // Work
                 </span>
-                <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight mt-2 mb-1 font-[family-name:var(--font-geist-mono)]">
+                <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight mt-2 mb-1 font-[family-name:var(--font-geist-mono)] gsap-fade-in-left">
                   Selected Projects<span className="typing-cursor" />
                 </h2>
                 <div className="heading-line mb-6" style={{ background: '#34d399', boxShadow: '0 0 10px #34d399' }} />
@@ -466,7 +545,7 @@ export default function HomePage() {
                     return (
                       <div
                         key={project.id}
-                        className="project-card-cyber p-4 group"
+                        className="project-card-cyber p-4 group gsap-scale-in"
                         onClick={() => setSelectedProject(project)}
                       >
                         {/* Number + title */}
@@ -522,19 +601,25 @@ export default function HomePage() {
             SECTION 4: CONTACT
            ═══════════════════════════════════════════ */}
         <section className="section-panel" style={{ top: '400vh' }}>
+          <ParallaxBackground activeIndex={activeIndex} sectionIndex={4} accentColor="#f59e0b" variant="circles" />
+
+          {/* Aurora blobs */}
+          <div className="aurora-blob aurora-blob-1" style={{ top: '15%', right: '-5%' }} />
+          <div className="aurora-blob aurora-blob-2" style={{ bottom: '20%', left: '-8%' }} />
+
           <div className="section-panel-inner">
             <div className="neon-line-h w-full" />
             <div className="min-h-screen flex items-center py-16 md:py-0">
               <div className="max-w-3xl mx-auto px-6 md:pl-24 md:pr-12 w-full">
                 <div className="text-center mb-12">
-                  <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-amber-400 tracking-[0.3em] uppercase">
+                  <span className="text-[10px] font-[family-name:var(--font-geist-mono)] text-amber-400 tracking-[0.3em] uppercase gsap-fade-in-left">
                     04 // Contact
                   </span>
-                  <h2 className="text-3xl md:text-6xl font-black text-white tracking-tight mt-3 mb-2 font-[family-name:var(--font-geist-mono)]">
+                  <h2 className="text-3xl md:text-6xl font-black text-white tracking-tight mt-3 mb-2 font-[family-name:var(--font-geist-mono)] gsap-fade-in-left">
                     Let&apos;s Connect<span className="typing-cursor" />
                   </h2>
                   <div className="heading-line mx-auto mb-6" style={{ background: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }} />
-                  <p className="text-sm text-slate-500 font-light leading-relaxed max-w-md mx-auto">
+                  <p className="text-sm text-slate-500 font-light leading-relaxed max-w-md mx-auto gsap-fade-in">
                     Have a project in mind or just want to say hello?
                     I&apos;m always open to discussing new ideas and opportunities.
                   </p>
@@ -548,7 +633,7 @@ export default function HomePage() {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="cyber-link"
+                      className="cyber-link gsap-fade-in"
                       style={{ '--link-color': link.color } as any}
                     >
                       <div
